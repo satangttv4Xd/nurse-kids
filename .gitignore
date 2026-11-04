@@ -32,3 +32,6 @@ database/.dev-jwt-secret
 
 # Vercel
 .vercel
+
+.vercel
+.env*

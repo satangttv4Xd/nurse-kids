@@ -30,6 +30,8 @@ writeFileSync(`${FN}/.vc-config.json`, JSON.stringify({
   launcherType: 'Nodejs',
   shouldAddHelpers: false, // ให้ Express อ่าน body เอง
   maxDuration: 30,
+  // ให้ function อยู่ภูมิภาคเดียวกับฐานข้อมูล Supabase (ap-northeast-2 = โซล → icn1)
+  regions: [process.env.FUNCTION_REGION || 'icn1'],
 }, null, 2))
 
 // 3) เส้นทาง + security headers สำหรับไฟล์เว็บ
