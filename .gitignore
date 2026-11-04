@@ -35,3 +35,7 @@ database/.dev-jwt-secret
 
 .vercel
 .env*
+
+# ใบรับรอง
+cert/
+*.crt
