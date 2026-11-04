@@ -72,7 +72,7 @@ export interface Story {
   missions: Mission[]
   ending: {
     beats: StoryBeat[]
-    memories: { areaId: string; title: string; summary: string; image: string }[]
+    memories: { areaId: string; title: string; summary: string; images: string[] }[]
     finalMessage: string
   }
 }

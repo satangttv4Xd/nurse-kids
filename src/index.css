@@ -200,3 +200,12 @@ button:focus-visible { outline: 6px solid var(--blue); outline-offset: 4px; }
 .sound-range::-moz-range-thumb { width: 60px; height: 60px; border-radius: 50%; background: var(--pink-d); border: 6px solid #fff; box-shadow: 0 4px 0 rgba(0,0,0,.15); cursor: pointer; }
 .sound-range:disabled { opacity: .4; }
 .sound-range:focus-visible { box-shadow: 0 0 0 8px rgba(169,211,238,.8); }
+
+/* ---------- ความทรงจำ (ฉากจบ) ---------- */
+.memories { top: 160px; gap: 28px; }
+.memory-card { width: 400px; padding: 16px 16px 20px; border-radius: 32px; background: rgba(255,255,255,.95);
+  box-shadow: 0 8px 0 rgba(0,0,0,.1); display: flex; flex-direction: column; gap: 10px; text-align: center; }
+.memory-pics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.memory-pics img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 18px; display: block; }
+.memory-title { font-size: 26px; color: var(--pink-d); line-height: 1.3; }
+.memory-summary { font-size: 30px; font-weight: 600; line-height: 1.3; }

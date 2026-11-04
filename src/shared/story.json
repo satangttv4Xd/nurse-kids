@@ -496,10 +496,10 @@
       }
     ],
     "memories": [
-      { "areaId": "area1", "title": "ยอดนักพิทักษ์ยาวิเศษ", "summary": "กินยาตรงเวลา ไม่หยุดยาเอง", "image": "/assets/memories/area1.png" },
-      { "areaId": "area2", "title": "โล่พิทักษ์ต้านสิ่งกระตุ้น", "summary": "นอนให้พอ หลบแดด บอกผู้ใหญ่", "image": "/assets/memories/area2.png" },
-      { "areaId": "area3", "title": "ผู้พิทักษ์เซฟตี้โซน", "summary": "มีสัญญาณเตือน นั่งลงที่ปลอดภัย", "image": "/assets/memories/area3.png" },
-      { "areaId": "area4", "title": "สัญญาณฉุกเฉิน ยอดนักสื่อสาร", "summary": "บอกผู้ใหญ่ทันที ช่วยจดบันทึก", "image": "/assets/memories/area4.png" }
+      { "areaId": "area1", "title": "ยอดนักพิทักษ์ยาวิเศษ", "summary": "กินยาตรงเวลา ไม่หยุดยาเอง", "images": ["/assets/choices/m01_a.jpg", "/assets/choices/m02_b.jpg"] },
+      { "areaId": "area2", "title": "โล่พิทักษ์ต้านสิ่งกระตุ้น", "summary": "นอนให้พอ หลบแดด บอกผู้ใหญ่", "images": ["/assets/choices/m03_a.jpg", "/assets/choices/m04_b.jpg"] },
+      { "areaId": "area3", "title": "ผู้พิทักษ์เซฟตี้โซน", "summary": "มีสัญญาณเตือน นั่งลงที่ปลอดภัย", "images": ["/assets/choices/m05_a.jpg", "/assets/choices/m06_b.jpg"] },
+      { "areaId": "area4", "title": "สัญญาณฉุกเฉิน ยอดนักสื่อสาร", "summary": "บอกผู้ใหญ่ทันที ช่วยจดบันทึก", "images": ["/assets/choices/m07_a.jpg", "/assets/choices/m08_a.jpg"] }
     ],
     "finalMessage": "ทุกก้าวเล็ก ๆ คือการเรียนรู้ครั้งยิ่งใหญ่"
   }

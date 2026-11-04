@@ -188,11 +188,14 @@ function StepView({ step, nickname, prevSpeaker, canBack, onNext, onPrev, onPaus
 
 
       {step.kind === 'memories' && (
-        <div className="choices choices-wrap">
+        <div className="choices memories">
           {story.ending.memories.map(m => (
-            <div key={m.areaId} className="choice small memory">
-              <Placeholder label={`ความทรงจำ: ${m.title}`} />
-              <span className="choice-label">{m.summary}</span>
+            <div key={m.areaId} className="memory-card">
+              <div className="memory-pics">
+                {m.images.map(src => <img key={src} src={src} alt="" draggable={false} />)}
+              </div>
+              <b className="memory-title">{m.title}</b>
+              <span className="memory-summary">{m.summary}</span>
             </div>
           ))}
         </div>
