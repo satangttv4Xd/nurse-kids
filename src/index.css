@@ -225,5 +225,5 @@ button:focus-visible { outline: 6px solid var(--blue); outline-offset: 4px; }
   font-family: 'Mali', sans-serif; font-size: 60px; font-weight: 700; color: #fff; letter-spacing: 1px;
   -webkit-text-stroke: 9px #4F86B4; paint-order: stroke fill; text-shadow: 0 3px 0 rgba(60,100,140,.35); }
 /* ข้อความผู้พัฒนา — วางในช่องว่างสีครีมด้านล่างของภาพหน้าเข้าเกม */
-.title-credit { position: absolute; left: 380px; top: 905px; width: 500px; margin: 0; text-align: center; pointer-events: none;
-  font-size: 28px; font-weight: 600; line-height: 1.35; color: #8A6E58; text-shadow: 0 2px 0 rgba(255,250,240,.9); }
+.title-credit { position: absolute; left: 50%; bottom: 22px; translate: -50% 0; margin: 0; padding: 8px 36px; white-space: nowrap; pointer-events: none;
+  font-size: 28px; font-weight: 600; color: #8A6E58; background: rgba(255,250,240,.82); border-radius: 30px; box-shadow: 0 2px 10px rgba(90,70,54,.12); }
