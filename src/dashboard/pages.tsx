@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
-import { ArrowLeft, CheckCircle2, CircleDashed, Clock, Download, Flag, Gauge, HandHelping, Lightbulb, LogOut, Pause, Play, Target, Users, XCircle } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, CircleDashed, Clock, Download, Flag, Gauge, HandHelping, Lightbulb, LogOut, Pause, Play, Target, Trash2, Users, XCircle } from 'lucide-react'
 import { api, type Analytics, type Filter, type Overview, type ParticipantDetail, type ParticipantRow, type SessionRow, type TimelineEvent, type User } from './api'
 import { BarChart } from './charts'
 import { can, go } from './DashboardApp'
@@ -122,8 +122,19 @@ export function AnalyticsPage({ filter }: { filter: Filter }) {
 
 /* ================= ผู้เข้าร่วม ================= */
 
-export function ParticipantsPage({ filter }: { filter: Filter }) {
-  const { data, error } = useLoad(() => api.participants(filter), [JSON.stringify(filter)])
+/** ลบผู้เข้าร่วมและข้อมูลการเล่นทั้งหมด (เฉพาะ Admin) — คืนค่า true เมื่อลบสำเร็จ */
+async function confirmDelete(p: { participant_id: string; nickname?: string | null }) {
+  const who = p.nickname ? `${p.participant_id} (${p.nickname})` : p.participant_id
+  if (!confirm(`ลบ ${who} พร้อมข้อมูลการเล่นทั้งหมด?
+
+การลบย้อนกลับไม่ได้`)) return false
+  try { await api.deleteParticipant(p.participant_id); return true }
+  catch (e) { alert(e instanceof Error ? e.message : 'ลบไม่สำเร็จ'); return false }
+}
+
+export function ParticipantsPage({ filter, user }: { filter: Filter; user: User }) {
+  const { data, error, reload } = useLoad(() => api.participants(filter), [JSON.stringify(filter)])
+  const isAdmin = can(user, 'admin')
   if (error) return <ErrorBox msg={error} />
   if (!data) return <Loading />
   return (
@@ -142,7 +153,15 @@ export function ParticipantsPage({ filter }: { filter: Filter }) {
                 <td className="px-3 py-2 tabular-nums">{p.session_count}</td>
                 <td className="px-3 py-2">{p.session_count === 0 ? <Badge kind="none">ยังไม่เล่น</Badge> : p.ever_completed ? <Badge kind="completed">เคยเล่นจบ</Badge> : <Badge kind="in_progress">ยังไม่จบ</Badge>}</td>
                 <td className="px-3 py-2"><Badge kind={p.consent_status}>{CONSENT_TH[p.consent_status]}</Badge></td>
-                <td className="px-3 py-2 text-right"><a className="text-brand-700 hover:underline" href={`#/participants/${p.participant_id}`}>ดูรายละเอียด</a></td>
+                <td className="whitespace-nowrap px-3 py-2 text-right">
+                  <a className="text-brand-700 hover:underline" href={`#/participants/${p.participant_id}`}>ดูรายละเอียด</a>
+                  {isAdmin && (
+                    <button className="ml-3 inline-flex items-center gap-1 rounded-lg px-2 py-1 text-rose-700 hover:bg-rose-50"
+                      onClick={async () => { if (await confirmDelete(p)) reload() }} aria-label={`ลบ ${p.participant_id}`}>
+                      <Trash2 className="h-4 w-4" /> ลบ
+                    </button>
+                  )}
+                </td>
               </tr>
             ))}
           </Table>
@@ -169,7 +188,15 @@ export function ParticipantDetailPage({ id, user }: { id: string; user: User }) 
   const assists = d.missions.reduce((a, m) => a + m.assists, 0)
   return (
     <>
-      <button className={btnGhost} onClick={() => go('participants')}><ArrowLeft className="h-4 w-4" /> กลับรายชื่อ</button>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <button className={btnGhost} onClick={() => go('participants')}><ArrowLeft className="h-4 w-4" /> กลับรายชื่อ</button>
+        {can(user, 'admin') && (
+          <button className={`${btnGhost} text-rose-700 hover:bg-rose-50`}
+            onClick={async () => { if (await confirmDelete(d.participant)) go('participants') }}>
+            <Trash2 className="h-4 w-4" /> ลบผู้เข้าร่วมนี้
+          </button>
+        )}
+      </div>
       {d.participant.is_demo && <DemoBanner />}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
         <StatCard icon={<Users className="h-4 w-4" />} label="Participant ID" value={<span className="font-mono text-2xl">{d.participant.participant_id}</span>} hint={`เข้าร่วม ${fmtDay(d.participant.created_at)}`} />

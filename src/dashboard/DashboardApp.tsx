@@ -121,7 +121,7 @@ function Shell({ user, onLogout }: { user: User; onLogout: () => void }) {
         <main className="flex-1 space-y-5 p-5">
           {page === 'overview' && <OverviewPage filter={filter} setFilter={setFilter} />}
           {page === 'analytics' && <AnalyticsPage filter={filter} />}
-          {page === 'participants' && (param ? <ParticipantDetailPage id={param} user={user} /> : <ParticipantsPage filter={filter} />)}
+          {page === 'participants' && (param ? <ParticipantDetailPage id={param} user={user} /> : <ParticipantsPage filter={filter} user={user} />)}
           {page === 'sessions' && <SessionsPage filter={filter} />}
           {page === 'export' && <ExportPage filter={filter} />}
           {page === 'admin' && <AdminPage user={user} />}
