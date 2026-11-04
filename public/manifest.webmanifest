@@ -1,0 +1,10 @@
+{
+  "name": "Little Steps: My Health Journey",
+  "short_name": "Little Steps",
+  "start_url": "/",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#FFF8EC",
+  "theme_color": "#FFF8EC",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

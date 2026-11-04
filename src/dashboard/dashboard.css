@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'IBM Plex Sans Thai', system-ui, sans-serif;
+  --color-brand-50: #fff4f6;
+  --color-brand-100: #fde4ea;
+  --color-brand-500: #e79aae;
+  --color-brand-600: #d27792;
+  --color-brand-700: #b35c77;
+  --color-ink: #2f2a26;
+  --color-muted: #6b645d;
+  --color-line: #e8e3dc;
+  --color-canvas: #faf8f5;
+  /* ชุดสีกราฟ (ค่ามาตรฐานที่ผ่านการตรวจตาบอดสีแล้ว) */
+  --color-series-1: #2a78d6;
+  --color-series-2: #eb6834;
+  --color-series-3: #1baf7a;
+}
+
+html, body, #root { height: 100%; }
+body { background: var(--color-canvas); color: var(--color-ink); }
