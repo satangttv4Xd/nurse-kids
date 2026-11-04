@@ -78,6 +78,7 @@ export function TitleScreen({ onStart }: { onStart: () => void }) {
   return (
     <div className="title-screen">
       <img className="bg" src="/assets/ui/title.jpg" alt="" draggable={false} />
+      <p className="title-credit">พัฒนาโดย สาขาความมั่นคงไซเบอร์ มหาวิทยาลัยสวนดุสิต</p>
       <h1 className="sr-only">ก้าวเล็ก ๆ — การเดินทางสู่สุขภาพของฉัน</h1>
 
       <button className="hotspot" style={{ left: 215, top: 420, width: 705, height: 245, borderRadius: 120 }} onClick={onStart} aria-label="เริ่มเกม" />
