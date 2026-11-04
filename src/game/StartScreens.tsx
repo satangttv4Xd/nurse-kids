@@ -1,17 +1,53 @@
 import { useEffect, useRef, useState } from 'react'
 import { NICKNAME_MAX, nicknameLength, sanitizeNickname } from './player'
 import { bustImage } from '../shared/characters'
+import { setSound, useSound } from './audio'
 
-export interface SoundSettings { music: boolean; voice: boolean }
+/* ---------------- ตั้งค่าเสียง (ใช้ทั้งหน้าแรก หน้ากรอกชื่อ และในเกม) ---------------- */
 
-const soundLabel = (s: SoundSettings) => (s.voice ? 'ปิดเสียง' : 'เปิดเสียง')
+export function SoundControls() {
+  const s = useSound()
+  return (
+    <div className="sound-controls">
+      <div className="sound-row">
+        <span className="sound-name">🎵 เพลงพื้นหลัง</span>
+        <button className={`btn sound-toggle${s.musicOn ? ' on' : ''}`} onClick={() => setSound({ musicOn: !s.musicOn })} aria-pressed={s.musicOn}>
+          {s.musicOn ? 'เปิด' : 'ปิด'}
+        </button>
+        <input type="range" className="sound-range" min={0} max={100} step={5} value={Math.round(s.musicVolume * 100)}
+          disabled={!s.musicOn} aria-label="ความดังเพลงพื้นหลัง"
+          onChange={e => setSound({ musicVolume: Number(e.target.value) / 100 })} />
+      </div>
+      <div className="sound-row">
+        <span className="sound-name">🔔 เสียงตอบคำถาม</span>
+        <button className={`btn sound-toggle${s.sfxOn ? ' on' : ''}`} onClick={() => setSound({ sfxOn: !s.sfxOn })} aria-pressed={s.sfxOn}>
+          {s.sfxOn ? 'เปิด' : 'ปิด'}
+        </button>
+        <input type="range" className="sound-range" min={0} max={100} step={5} value={Math.round(s.sfxVolume * 100)}
+          disabled={!s.sfxOn} aria-label="ความดังเสียงตอบคำถาม"
+          onChange={e => setSound({ sfxVolume: Number(e.target.value) / 100 })} />
+      </div>
+    </div>
+  )
+}
+
+export function SoundPanel({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="overlay" onClick={onClose}>
+      <div className="panel" onClick={e => e.stopPropagation()}>
+        <h2>ตั้งค่าเสียง</h2>
+        <SoundControls />
+        <button className="btn btn-primary" onClick={onClose}>ปิด</button>
+      </div>
+    </div>
+  )
+}
 
 /* ---------------- หน้าเข้าเกม (ใช้ภาพจากโฟลเดอร์ หน้าเข้าเกม) ---------------- */
 // ปุ่มในภาพเป็นส่วนหนึ่งของภาพวาด จึงวางปุ่มโปร่งใสทับตำแหน่งปุ่มในภาพ (พิกัดบนเวที 1920×1080)
 
-export function TitleScreen({ sound, onSound, onStart }: {
-  sound: SoundSettings; onSound: (s: SoundSettings) => void; onStart: () => void
-}) {
+export function TitleScreen({ onStart }: { onStart: () => void }) {
+  const sound = useSound()
   const [panel, setPanel] = useState<null | 'settings' | 'credits'>(null)
   return (
     <div className="title-screen">
@@ -21,19 +57,18 @@ export function TitleScreen({ sound, onSound, onStart }: {
       <button className="hotspot" style={{ left: 215, top: 420, width: 705, height: 245, borderRadius: 120 }} onClick={onStart} aria-label="เริ่มเกม" />
       <button className="hotspot" style={{ left: 215, top: 700, width: 328, height: 125, borderRadius: 62 }} onClick={() => setPanel('settings')} aria-label="ตั้งค่า" />
       <button className="hotspot" style={{ left: 575, top: 700, width: 345, height: 125, borderRadius: 62 }} onClick={() => setPanel('credits')} aria-label="คณะผู้จัดทำ" />
-      <button className={`hotspot round${sound.music ? '' : ' muted'}`} style={{ left: 1570, top: 62, width: 122, height: 122 }}
-        onClick={() => onSound({ ...sound, music: !sound.music })} aria-label={sound.music ? 'ปิดเพลง' : 'เปิดเพลง'} aria-pressed={!sound.music} />
-      <button className={`hotspot round${sound.voice ? '' : ' muted'}`} style={{ left: 1726, top: 48, width: 140, height: 140 }}
-        onClick={() => onSound({ ...sound, voice: !sound.voice })} aria-label={soundLabel(sound)} aria-pressed={!sound.voice} />
+      <button className={`hotspot round${sound.musicOn ? '' : ' muted'}`} style={{ left: 1570, top: 62, width: 122, height: 122 }}
+        onClick={() => setSound({ musicOn: !sound.musicOn })} aria-label={sound.musicOn ? 'ปิดเพลง' : 'เปิดเพลง'} aria-pressed={!sound.musicOn} />
+      <button className={`hotspot round${sound.sfxOn ? '' : ' muted'}`} style={{ left: 1726, top: 48, width: 140, height: 140 }}
+        onClick={() => setSound({ sfxOn: !sound.sfxOn })} aria-label={sound.sfxOn ? 'ปิดเสียงตอบคำถาม' : 'เปิดเสียงตอบคำถาม'} aria-pressed={!sound.sfxOn} />
 
       {panel && (
         <div className="overlay" onClick={() => setPanel(null)}>
           <div className="panel" onClick={e => e.stopPropagation()}>
             {panel === 'settings' ? (
               <>
-                <h2>ตั้งค่า</h2>
-                <button className="btn toggle" onClick={() => onSound({ ...sound, music: !sound.music })}>🎵 เพลง: {sound.music ? 'เปิด' : 'ปิด'}</button>
-                <button className="btn toggle" onClick={() => onSound({ ...sound, voice: !sound.voice })}>🔊 เสียงพากย์: {sound.voice ? 'เปิด' : 'ปิด'}</button>
+                <h2>ตั้งค่าเสียง</h2>
+                <SoundControls />
               </>
             ) : (
               <>
@@ -51,11 +86,12 @@ export function TitleScreen({ sound, onSound, onStart }: {
 
 /* ---------------- หน้ากรอกชื่อเล่น ---------------- */
 
-export function NicknameScreen({ sound, onSound, name, setName, onStart, onHowTo, onBack }: {
-  sound: SoundSettings; onSound: (s: SoundSettings) => void; name: string; setName: (s: string) => void
+export function NicknameScreen({ name, setName, onStart, onHowTo, onBack }: {
+  name: string; setName: (s: string) => void
   onStart: (nickname: string) => void; onHowTo: () => void; onBack: () => void
 }) {
   const [error, setError] = useState('')
+  const [soundOpen, setSoundOpen] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const mali = bustImage('mali', 'happy')
   const pui = bustImage('pui', 'happy')
@@ -74,11 +110,6 @@ export function NicknameScreen({ sound, onSound, name, setName, onStart, onHowTo
     <div className="nick-screen">
       <img className="bg nick-bg" src="/assets/bg/scene01.jpg" alt="" draggable={false} />
       <div className="nick-veil" />
-
-      <button className="icon-btn nick-back" onClick={onBack} aria-label="กลับหน้าแรก">◀</button>
-      <button className="icon-btn nick-sound" onClick={() => onSound({ ...sound, voice: !sound.voice })} aria-label={soundLabel(sound)}>
-        {sound.voice ? '🔊' : '🔇'}
-      </button>
 
       <header className="nick-head">
         <img className="nick-logo" src="/assets/ui/logo.png" alt="ก้าวเล็ก ๆ" draggable={false} />
@@ -114,6 +145,11 @@ export function NicknameScreen({ sound, onSound, name, setName, onStart, onHowTo
         <button className="btn btn-big btn-mint" onClick={submit}>เริ่มการผจญภัย ▶</button>
         <button className="btn btn-big btn-blue" onClick={onHowTo}>วิธีเล่น 📖</button>
       </div>
+
+      {/* วางหลังส่วนหัว เพื่อให้อยู่ด้านบนและกดได้ */}
+      <button className="icon-btn nick-back" onClick={onBack} aria-label="กลับหน้าแรก">◀</button>
+      <button className="icon-btn nick-sound" onClick={() => setSoundOpen(true)} aria-label="ตั้งค่าเสียง">🎵</button>
+      {soundOpen && <SoundPanel onClose={() => setSoundOpen(false)} />}
     </div>
   )
 }

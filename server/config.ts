@@ -16,7 +16,9 @@ if (existsSync(envFile)) {
 }
 
 const env = process.env
-export const isProd = env.NODE_ENV === 'production'
+/** กำลังรันบน Vercel (serverless) */
+const serverless = !!env.VERCEL
+export const isProd = env.NODE_ENV === 'production' || serverless
 
 function devSecret(): string {
   const file = resolve(ROOT, 'database', '.dev-jwt-secret')
@@ -35,6 +37,9 @@ export const config = {
   port: Number(env.PORT ?? 3001),
   /** ถ้าตั้ง DATABASE_URL จะใช้ PostgreSQL จริง ไม่ตั้ง = ใช้ PGlite (PostgreSQL ในเครื่องสำหรับพัฒนา) */
   databaseUrl: env.DATABASE_URL || null,
+  /** ใบรับรอง CA ของฐานข้อมูล (PEM) — ตั้งแล้วจะตรวจใบรับรองเต็มรูปแบบ (Supabase: Settings → Database → SSL) */
+  databaseCaCert: env.DATABASE_CA_CERT?.replace(/\\n/g, '\n') || null,
+  serverless,
   pgliteDir: resolve(ROOT, env.PGLITE_DIR ?? 'database/data'),
   jwtSecret: env.JWT_SECRET || devSecret(),
   /** ปิดการรับข้อมูลจากเกม (เช่น ก่อนได้รับอนุมัติจริยธรรม) ตั้งเป็น false */

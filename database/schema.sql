@@ -107,3 +107,15 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_logs (created_at DESC);
+
+-- ปิดการเข้าถึงผ่าน Supabase Data API (anon / authenticated key) — มีแต่ API server ของเราเท่านั้นที่อ่าน/เขียนได้
+-- เปิด RLS โดยไม่มี policy = ปฏิเสธทุกคำขอจาก role อื่น ส่วนผู้ใช้ที่เป็นเจ้าของตาราง (postgres) ที่ server ใช้เชื่อมต่อไม่ถูกจำกัด
+-- บน PostgreSQL/PGlite ทั่วไป คำสั่งนี้ไม่มีผลกับการทำงานของระบบ
+ALTER TABLE participants      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE consent_records   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sessions          ENABLE ROW LEVEL SECURITY;
+ALTER TABLE session_settings  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE mission_events    ENABLE ROW LEVEL SECURITY;
+ALTER TABLE assistance_events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE admin_users       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE audit_logs        ENABLE ROW LEVEL SECURITY;

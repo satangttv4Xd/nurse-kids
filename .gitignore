@@ -29,3 +29,6 @@ dist-ssr
 database/data
 database/.dev-jwt-secret
 .env
+
+# Vercel
+.vercel

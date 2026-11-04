@@ -14,7 +14,8 @@
     "demo:seed": "node server/seed-demo.ts",
     "demo:clear": "node server/seed-demo.ts --clear",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:vercel": "npm run build && node scripts/build-vercel.mjs"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.15",
@@ -54,6 +55,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",
     "globals": "^17.13.0",
+    "rolldown": "~1.2.14",
     "tailwindcss": "^4.3.4",
     "typescript": "~7.0.2",
     "typescript-eslint": "^8.72.0",

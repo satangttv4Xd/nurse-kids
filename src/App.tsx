@@ -6,7 +6,8 @@ import { SCENES, CHARACTER_NAMES } from './shared/scenes'
 import { areaOf, buildSteps, story, type Step } from './game/storyFlow'
 import type { Line, Mission } from './shared/story.types'
 import { bodyImage, bustImage, faceImage } from './shared/characters'
-import { HowToScreen, LoadingScreen, NicknameScreen, TitleScreen, type SoundSettings } from './game/StartScreens'
+import { HowToScreen, LoadingScreen, NicknameScreen, SoundControls, SoundPanel, TitleScreen } from './game/StartScreens'
+import { getSound, playSfx, unlockAudio } from './game/audio'
 import { createSession, endSession, startTracking, track, withNickname, type PlayerSession } from './game/player'
 
 type Screen = 'title' | 'nickname' | 'howto' | 'loading' | 'game'
@@ -16,11 +17,11 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>('title')
   const [idx, setIdx] = useState(0)
   const [paused, setPaused] = useState(false)
-  const [sound, setSound] = useState<SoundSettings>({ music: true, voice: true })
   const [session, setSession] = useState<PlayerSession | null>(null)
   const [draftName, setDraftName] = useState('')
 
   const openNickname = async () => {
+    unlockAudio()
     await enterLandscapeFullscreen()
     setScreen('nickname')
   }
@@ -28,7 +29,7 @@ export default function App() {
   const begin = (nickname: string) => {
     const s = createSession(nickname)
     setSession(s)
-    startTracking(s, { musicOn: sound.music, voiceOn: sound.voice })
+    startTracking(s, { musicOn: getSound().musicOn, voiceOn: false }) // เกมไม่มีเสียงพากย์
     setIdx(0)
     setScreen('loading')
   }
@@ -58,9 +59,9 @@ export default function App() {
   return (
     <RotateGate>
       <Stage>
-        {screen === 'title' && <TitleScreen sound={sound} onSound={setSound} onStart={openNickname} />}
+        {screen === 'title' && <TitleScreen onStart={openNickname} />}
         {screen === 'nickname' && (
-          <NicknameScreen sound={sound} onSound={setSound} name={draftName} setName={setDraftName}
+          <NicknameScreen name={draftName} setName={setDraftName}
             onStart={begin} onHowTo={() => setScreen('howto')} onBack={() => setScreen('title')} />
         )}
         {screen === 'howto' && <HowToScreen onBack={() => setScreen('nickname')} />}
@@ -81,6 +82,7 @@ export default function App() {
           <div className="overlay">
             <div className="panel">
               <h2>พักก่อนนะ</h2>
+              <SoundControls />
               <button className="btn btn-primary" onClick={() => { setPaused(false); track({ type: 'resume' }) }}>เล่นต่อ</button>
               <button className="btn" onClick={goHome}>กลับหน้าแรก</button>
             </div>
@@ -106,6 +108,7 @@ function StepView({ step, nickname, prevSpeaker, canBack, onNext, onPrev, onPaus
     track({ type: 'assist', missionId: mission.missionId })
   }
   const shownAt = useRef(Date.now())
+  const [soundOpen, setSoundOpen] = useState(false)
 
   const pick = (id: string) => {
     if (!mission) return
@@ -114,6 +117,7 @@ function StepView({ step, nickname, prevSpeaker, canBack, onNext, onPrev, onPaus
     track({ type: 'answer', missionId: mission.missionId, choiceId: c.id, isCorrect: c.isCorrect, attempt: attempts.current,
       responseMs: Date.now() - shownAt.current, hintsUsed: hintLevel, caregiverAssisted: assisted })
     setPicked(id)
+    playSfx(c.isCorrect ? 'correct' : 'wrong')
   }
 
   // ข้อความในกล่องบทสนทนาของขั้นตอนนี้
@@ -149,7 +153,7 @@ function StepView({ step, nickname, prevSpeaker, canBack, onNext, onPrev, onPaus
       <div className="hud-top">
         <span className="chip">{mission ? `${areaOf(mission)?.name} · ${mission.missionId} ${mission.title}` : `${scene.location} · ${scene.title}`}</span>
         <div className="hud-btns">
-          <button className="icon-btn" aria-label="ฟังเสียงอีกครั้ง">🔊</button>
+          <button className="icon-btn" aria-label="ตั้งค่าเสียง" onClick={() => setSoundOpen(true)}>🎵</button>
           {step.kind === 'mission' && <button className="icon-btn" aria-label="คำใบ้" onClick={showHint}>💡</button>}
           {step.kind === 'mission' && (
             <button className={`icon-btn assist-btn${assisted ? ' on' : ''}`} onClick={markAssisted} aria-pressed={assisted}
@@ -201,6 +205,8 @@ function StepView({ step, nickname, prevSpeaker, canBack, onNext, onPrev, onPaus
           <b>THE END</b>
         </div>
       )}
+
+      {soundOpen && <SoundPanel onClose={() => setSoundOpen(false)} />}
 
       <div className="dialogue">
         {hasPanel && line.speaker !== 'narrator' && (
