@@ -43,12 +43,38 @@ export function SoundPanel({ onClose }: { onClose: () => void }) {
   )
 }
 
+/* ---------------- หน้าแรกสุด: ข้อความงานวิจัย (ข้อความตามที่อาจารย์กำหนด) ---------------- */
+
+export const RESEARCH_STATEMENT =
+  'เกมให้ความรู้นี้เป็นส่วนหนึ่งของงานวิจัยเรื่อง “ผลของโปรแกรมส่งเสริมสมรรถนะการรับรู้แห่งตนต่อพฤติกรรมป้องกันการกำเริบของโรคในเด็กวัยเรียนโรคลมชัก” ของคณะพยาบาลศาสตร์ มหาวิทยาลัยสวนดุสิต ร่วมกับสถาบันสุขภาพเด็กแห่งชาติมหาราชินี'
+
+// แสดงข้อความ โดยไม่ตัดบรรทัดกลางชื่อเฉพาะ
+const NO_BREAK = ['คณะพยาบาลศาสตร์', 'มหาวิทยาลัยสวนดุสิต', 'สถาบันสุขภาพเด็กแห่งชาติมหาราชินี', 'โรคลมชัก”', 'การรับรู้แห่งตน']
+function Statement() {
+  const re = new RegExp(`(${NO_BREAK.join('|')})`)
+  return <>{RESEARCH_STATEMENT.split(re).map((s, i) => NO_BREAK.includes(s) ? <span key={i} className="nobr">{s}</span> : s)}</>
+}
+
+export function IntroScreen({ onNext }: { onNext: () => void }) {
+  return (
+    <div className="intro-screen">
+      <img className="bg nick-bg" src="/assets/bg/scene01.jpg" alt="" draggable={false} />
+      <div className="nick-veil" />
+      <div className="intro-card">
+        <img className="intro-logo" src="/assets/ui/logo.png" alt="ก้าวเล็ก ๆ" draggable={false} />
+        <p className="intro-text"><Statement /></p>
+        <button className="btn btn-big btn-mint" onClick={onNext} autoFocus>ต่อไป ▶</button>
+      </div>
+    </div>
+  )
+}
+
 /* ---------------- หน้าเข้าเกม (ใช้ภาพจากโฟลเดอร์ หน้าเข้าเกม) ---------------- */
 // ปุ่มในภาพเป็นส่วนหนึ่งของภาพวาด จึงวางปุ่มโปร่งใสทับตำแหน่งปุ่มในภาพ (พิกัดบนเวที 1920×1080)
 
 export function TitleScreen({ onStart }: { onStart: () => void }) {
   const sound = useSound()
-  const [panel, setPanel] = useState<null | 'settings' | 'credits'>(null)
+  const [panel, setPanel] = useState<null | 'settings' | 'about'>(null)
   return (
     <div className="title-screen">
       <img className="bg" src="/assets/ui/title.jpg" alt="" draggable={false} />
@@ -56,7 +82,7 @@ export function TitleScreen({ onStart }: { onStart: () => void }) {
 
       <button className="hotspot" style={{ left: 215, top: 420, width: 705, height: 245, borderRadius: 120 }} onClick={onStart} aria-label="เริ่มเกม" />
       <button className="hotspot" style={{ left: 215, top: 700, width: 328, height: 125, borderRadius: 62 }} onClick={() => setPanel('settings')} aria-label="ตั้งค่า" />
-      <button className="hotspot" style={{ left: 575, top: 700, width: 345, height: 125, borderRadius: 62 }} onClick={() => setPanel('credits')} aria-label="คณะผู้จัดทำ" />
+      <button className="hotspot" style={{ left: 575, top: 700, width: 345, height: 125, borderRadius: 62 }} onClick={() => setPanel('about')} aria-label="เกี่ยวกับเกม" />
       <button className={`hotspot round${sound.musicOn ? '' : ' muted'}`} style={{ left: 1570, top: 62, width: 122, height: 122 }}
         onClick={() => setSound({ musicOn: !sound.musicOn })} aria-label={sound.musicOn ? 'ปิดเพลง' : 'เปิดเพลง'} aria-pressed={!sound.musicOn} />
       <button className={`hotspot round${sound.sfxOn ? '' : ' muted'}`} style={{ left: 1726, top: 48, width: 140, height: 140 }}
@@ -72,8 +98,8 @@ export function TitleScreen({ onStart }: { onStart: () => void }) {
               </>
             ) : (
               <>
-                <h2>คณะผู้จัดทำ</h2>
-                <p className="panel-text">(รอใส่รายชื่อ)</p>
+                <h2>เกี่ยวกับเกม</h2>
+                <p className="panel-text about-text"><Statement /></p>
               </>
             )}
             <button className="btn btn-primary" onClick={() => setPanel(null)}>ปิด</button>

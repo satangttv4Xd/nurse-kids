@@ -6,15 +6,15 @@ import { SCENES, CHARACTER_NAMES } from './shared/scenes'
 import { areaOf, buildSteps, story, type Step } from './game/storyFlow'
 import type { Line, Mission } from './shared/story.types'
 import { bodyImage, bustImage, faceImage } from './shared/characters'
-import { HowToScreen, LoadingScreen, NicknameScreen, SoundControls, SoundPanel, TitleScreen } from './game/StartScreens'
+import { IntroScreen, HowToScreen, LoadingScreen, NicknameScreen, SoundControls, SoundPanel, TitleScreen } from './game/StartScreens'
 import { getSound, playSfx, unlockAudio } from './game/audio'
 import { createSession, endSession, startTracking, track, withNickname, type PlayerSession } from './game/player'
 
-type Screen = 'title' | 'nickname' | 'howto' | 'loading' | 'game'
+type Screen = 'intro' | 'title' | 'nickname' | 'howto' | 'loading' | 'game'
 
 export default function App() {
   const steps = useMemo(buildSteps, [])
-  const [screen, setScreen] = useState<Screen>('title')
+  const [screen, setScreen] = useState<Screen>('intro')
   const [idx, setIdx] = useState(0)
   const [paused, setPaused] = useState(false)
   const [session, setSession] = useState<PlayerSession | null>(null)
@@ -59,6 +59,7 @@ export default function App() {
   return (
     <RotateGate>
       <Stage>
+        {screen === 'intro' && <IntroScreen onNext={() => { unlockAudio(); setScreen('title') }} />}
         {screen === 'title' && <TitleScreen onStart={openNickname} />}
         {screen === 'nickname' && (
           <NicknameScreen name={draftName} setName={setDraftName}
