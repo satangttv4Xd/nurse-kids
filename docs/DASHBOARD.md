@@ -36,7 +36,7 @@ npm run dev          # เปิดทั้งเกม (5173) และ API (3
 ```
 
 - เกม: http://localhost:5173
-- Dashboard: http://localhost:5173/dashboard.html
+- Dashboard: http://localhost:5173/admin
 
 ครั้งแรกที่รัน ระบบสร้างบัญชี `admin` พร้อมรหัสผ่านสุ่ม **แสดงในหน้าจอ terminal ครั้งเดียว** ให้จดไว้
 (หรือตั้ง `ADMIN_USERNAME` / `ADMIN_PASSWORD` ใน `.env` ก่อนรันครั้งแรก)
@@ -57,13 +57,13 @@ CREATE DATABASE littlesteps OWNER littlesteps;
 ```bash
 cp .env.example .env      # แก้: DATABASE_URL, JWT_SECRET, ADMIN_USERNAME, ADMIN_PASSWORD, NODE_ENV=production
 npm run build
-npm start                 # เซิร์ฟเวอร์ให้บริการทั้งเกม (/), Dashboard (/dashboard.html) และ API (/api)
+npm start                 # เซิร์ฟเวอร์ให้บริการทั้งเกม (/), Dashboard (/admin) และ API (/api)
 ```
 
 - **ต้องใช้ HTTPS** — วางเซิร์ฟเวอร์ไว้หลัง reverse proxy (เช่น Nginx/Caddy) ที่มีใบรับรอง TLS
   (ใน production cookie ของผู้ดูแลตั้งเป็น `Secure` จึงใช้ผ่าน HTTPS เท่านั้น)
 - สำรองฐานข้อมูล PostgreSQL ตามรอบ และเข้ารหัสดิสก์ของเซิร์ฟเวอร์ (encryption at rest)
-- จำกัดการเข้าถึง `/dashboard.html` ด้วย firewall/VPN ได้อีกชั้นหนึ่ง
+- จำกัดการเข้าถึง `/admin` และ `/dashboard.html` ด้วย firewall/VPN ได้อีกชั้นหนึ่ง
 
 ## 4. การใช้งาน Dashboard
 

@@ -11,6 +11,16 @@ export default defineConfig({
     babel({ presets: [reactCompilerPreset()] }),
     // Tailwind ใช้เฉพาะหน้า Dashboard (src/dashboard/dashboard.css) — ไม่กระทบ CSS ของเกม
     tailwindcss(),
+    // /admin → หน้า Dashboard (ตอนพัฒนาในเครื่อง)
+    {
+      name: 'admin-route',
+      configureServer(server) {
+        server.middlewares.use((req, _res, next) => {
+          if (req.url === '/admin' || req.url === '/admin/') req.url = '/dashboard.html'
+          next()
+        })
+      },
+    },
   ],
   server: {
     // ส่งต่อ /api ไปที่เซิร์ฟเวอร์ Express (npm run server)

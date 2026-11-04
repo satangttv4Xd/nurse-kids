@@ -45,7 +45,7 @@ writeFileSync(`${OUT}/config.json`, JSON.stringify({
   version: 3,
   routes: [
     { src: '/(.*)', headers: security, continue: true },
-    { src: '/dashboard/?', dest: '/dashboard.html' },
+    { src: '/(?:admin|dashboard)/?', dest: '/dashboard.html' },
     { handle: 'filesystem' },
     { src: '/api(?:/.*)?', dest: '/api' },
   ],

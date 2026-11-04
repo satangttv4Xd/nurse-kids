@@ -76,7 +76,7 @@ app.use('/api', (_req, res) => res.status(404).json({ error: 'not_found' }))
 const dist = resolve(ROOT, 'dist')
 if (config.isProd && !process.env.VERCEL && existsSync(dist)) {
   app.use(express.static(dist, { index: 'index.html' }))
-  app.get('/dashboard', (_req, res) => res.sendFile(resolve(dist, 'dashboard.html')))
+  app.get(['/admin', '/dashboard'], (_req, res) => res.sendFile(resolve(dist, 'dashboard.html')))
 }
 
 // ---------- จัดการ error ----------

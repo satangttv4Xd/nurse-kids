@@ -10,7 +10,7 @@ npm run dev
 ```
 
 - เกม: http://localhost:5173
-- Dashboard: http://localhost:5173/dashboard.html
+- Dashboard: http://localhost:5173/admin
 
 ## เอกสาร
 

@@ -71,7 +71,7 @@ npx vercel deploy --prod
 ### หลัง deploy ครั้งแรก
 - **Settings → Functions → Function Region:** เลือก **Singapore (sin1)** ให้อยู่ที่เดียวกับ Supabase จะได้ตอบสนองเร็วขึ้นมาก จากนั้นกด Redeploy
 - เปิด `https://<ชื่อโปรเจกต์>.vercel.app/api/health` ต้องเห็น `{"ok":true,...}`
-- เปิด `https://<ชื่อโปรเจกต์>.vercel.app/dashboard` แล้วเข้าสู่ระบบด้วย `ADMIN_USERNAME` / `ADMIN_PASSWORD`
+- เปิด `https://<ชื่อโปรเจกต์>.vercel.app/admin` แล้วเข้าสู่ระบบด้วย `ADMIN_USERNAME` / `ADMIN_PASSWORD`
 - เมื่อเข้าได้แล้ว ให้สร้างบัญชีผู้วิจัยแยกในหน้า "ผู้ดูแลระบบ" ส่วน `ADMIN_PASSWORD` ใน Vercel ใช้ตอนสร้างบัญชีแรกเท่านั้น จะลบออกภายหลังก็ได้
 
 ---
