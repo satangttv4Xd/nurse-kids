@@ -82,7 +82,10 @@ export function TitleScreen({ onStart }: { onStart: () => void }) {
 
       <button className="hotspot" style={{ left: 215, top: 420, width: 705, height: 245, borderRadius: 120 }} onClick={onStart} aria-label="เริ่มเกม" />
       <button className="hotspot" style={{ left: 215, top: 700, width: 328, height: 125, borderRadius: 62 }} onClick={() => setPanel('settings')} aria-label="ตั้งค่า" />
-      <button className="hotspot" style={{ left: 575, top: 700, width: 345, height: 125, borderRadius: 62 }} onClick={() => setPanel('about')} aria-label="เกี่ยวกับเกม" />
+      <button className="hotspot" style={{ left: 575, top: 700, width: 345, height: 125, borderRadius: 62 }} onClick={() => setPanel('about')} aria-label="เกี่ยวกับเกม">
+        {/* ป้ายทับคำว่า “คณะผู้จัดทำ” ที่วาดอยู่ในภาพ */}
+        <span className="title-label" aria-hidden>เกี่ยวกับ</span>
+      </button>
       <button className={`hotspot round${sound.musicOn ? '' : ' muted'}`} style={{ left: 1570, top: 62, width: 122, height: 122 }}
         onClick={() => setSound({ musicOn: !sound.musicOn })} aria-label={sound.musicOn ? 'ปิดเพลง' : 'เปิดเพลง'} aria-pressed={!sound.musicOn} />
       <button className={`hotspot round${sound.sfxOn ? '' : ' muted'}`} style={{ left: 1726, top: 48, width: 140, height: 140 }}

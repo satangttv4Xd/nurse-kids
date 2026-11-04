@@ -218,3 +218,9 @@ button:focus-visible { outline: 6px solid var(--blue); outline-offset: 4px; }
 .intro-text { margin: 0; font-size: 46px; line-height: 1.6; font-weight: 600; color: var(--ink); }
 .about-text { max-width: 1100px; text-align: center; line-height: 1.6; }
 .nobr { white-space: nowrap; }
+/* ป้าย “เกี่ยวกับ” ทับข้อความในภาพปุ่มหน้าเข้าเกม (พิกัดภายในปุ่ม hotspot left:575 top:700) */
+.title-label { position: absolute; left: 14px; top: 17px; width: 252px; height: 94px; border-radius: 47px 20px 20px 47px;
+  background: linear-gradient(180deg, #B3DCF3 0%, #A6D5F0 55%, #9FCFEE 100%);
+  display: flex; align-items: center; justify-content: center; pointer-events: none;
+  font-family: 'Mali', sans-serif; font-size: 60px; font-weight: 700; color: #fff; letter-spacing: 1px;
+  -webkit-text-stroke: 9px #4F86B4; paint-order: stroke fill; text-shadow: 0 3px 0 rgba(60,100,140,.35); }
