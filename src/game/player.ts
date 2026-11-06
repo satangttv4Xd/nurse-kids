@@ -5,7 +5,7 @@
 //    ปิดการรับข้อมูลที่เซิร์ฟเวอร์ได้ด้วย COLLECTION_ENABLED=false
 
 export const NICKNAME_MAX = 20
-const GAME_VERSION = '0.2.0'
+const GAME_VERSION = '0.3.0'
 
 const graphemes = (s: string): string[] => {
   const Seg = (Intl as unknown as { Segmenter?: new (l: string, o: { granularity: string }) => { segment(s: string): Iterable<{ segment: string }> } }).Segmenter

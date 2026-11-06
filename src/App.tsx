@@ -72,6 +72,7 @@ export default function App() {
             key={idx}
             step={steps[idx]}
             nickname={session?.nickname ?? ''}
+            badges={steps.slice(0, idx + 1).flatMap(s => s.kind === 'badge' ? [s.area.id] : [])}
             prevSpeaker={idx > 0 && steps[idx - 1].kind === 'line' ? (steps[idx - 1] as { line: Line }).line.speaker : null}
             canBack={idx > 0}
             onNext={next}
@@ -94,11 +95,16 @@ export default function App() {
   )
 }
 
-interface StepProps { step: Step; nickname: string; prevSpeaker: string | null; canBack: boolean; onNext: () => void; onPrev: () => void; onPause: () => void }
+interface StepProps { step: Step; nickname: string; badges: string[]; prevSpeaker: string | null; canBack: boolean; onNext: () => void; onPrev: () => void; onPause: () => void }
 
-function StepView({ step, nickname, prevSpeaker, canBack, onNext, onPrev, onPause }: StepProps) {
+function StepView({ step, nickname, badges, prevSpeaker, canBack, onNext, onPrev, onPause }: StepProps) {
   const scene = SCENES.find(s => s.id === step.sceneId) ?? SCENES[0]
   const mission = step.kind === 'mission' ? step.mission : null
+  // ภารกิจที่เกี่ยวข้องกับขั้นนี้ (ใช้แสดงชื่อบนแถบด้านบน)
+  const chipMission = step.kind === 'mission' || step.kind === 'explore' ? step.mission : null
+  // สำรวจฉาก: สิ่งของที่แตะดูแล้ว (ไม่บันทึกข้อมูล ไม่นับคะแนน)
+  const [explored, setExplored] = useState<number[]>([])
+  const [exploreText, setExploreText] = useState<string | null>(null)
   const [hintLevel, setHintLevel] = useState(0)
   const [picked, setPicked] = useState<string | null>(null)
   const attempts = useRef(0)
@@ -131,11 +137,16 @@ function StepView({ step, nickname, prevSpeaker, canBack, onNext, onPrev, onPaus
     else if (hintLevel > 0) line = { speaker: 'pui', text: `💡 ${step.mission.hints[hintLevel - 1]}` }
     else line = step.mission.question
     canContinue = !!choice?.isCorrect
-  } else if (step.kind === 'memories') line = { speaker: 'narrator', text: 'ความทรงจำจากการเดินทางวันนี้' }
+  } else if (step.kind === 'explore') {
+    line = exploreText
+      ? { speaker: 'pui', text: exploreText, emotion: 'happy' }
+      : { speaker: 'pui', text: 'มาสำรวจกันเถอะ! แตะสิ่งของเพื่อดูรายละเอียด หรือกด “ต่อไป” ได้เลยนะ', emotion: 'curious' }
+  } else if (step.kind === 'badge') line = { speaker: 'narrator', text: `ได้รับ${step.area.badge.name}! ${step.area.badge.icon}` }
+  else if (step.kind === 'memories') line = { speaker: 'narrator', text: 'ความทรงจำจากการเดินทางวันนี้' }
   else line = { speaker: 'narrator', text: story.ending.finalMessage }
 
   const hasPanel = step.kind !== 'line'
-  const charsHidden = line.speaker !== 'narrator' || step.kind === 'memories'
+  const charsHidden = line.speaker !== 'narrator' || step.kind === 'memories' || step.kind === 'badge'
   const prevHidden = prevSpeaker !== null && prevSpeaker !== 'narrator'
   const speakerName = line.speaker === 'narrator' ? '' : CHARACTER_NAMES[line.speaker]
   const showHint = () => {
@@ -152,7 +163,15 @@ function StepView({ step, nickname, prevSpeaker, canBack, onNext, onPrev, onPaus
         : <Placeholder label={`พื้นหลัง: ${scene.title}`} className="bg" />}
 
       <div className="hud-top">
-        <span className="chip">{mission ? `${areaOf(mission)?.name} · ${mission.missionId} ${mission.title}` : `${scene.location} · ${scene.title}`}</span>
+        <div className="hud-left">
+          <span className="chip">{chipMission ? `${areaOf(chipMission)?.name} · ${chipMission.title}` : `${scene.location} · ${scene.title}`}</span>
+          {/* ตราผู้พิทักษ์ที่ได้แล้ว (แผนที่ความคืบหน้า) */}
+          <span className="badge-bar" aria-label={`ตราผู้พิทักษ์ ${badges.length} จาก 4`}>
+            {story.areas.map(a => (
+              <span key={a.id} className={`badge-slot${badges.includes(a.id) ? ' got' : ''}`} title={a.badge.name}>{a.badge.icon}</span>
+            ))}
+          </span>
+        </div>
         <div className="hud-btns">
           <button className="icon-btn" aria-label="ตั้งค่าเสียง" onClick={() => setSoundOpen(true)}>🎵</button>
           {step.kind === 'mission' && <button className="icon-btn" aria-label="คำใบ้" onClick={showHint}>💡</button>}
@@ -187,6 +206,27 @@ function StepView({ step, nickname, prevSpeaker, canBack, onNext, onPrev, onPaus
 
       {step.kind === 'mission' && <ChoiceGrid mission={step.mission} picked={picked} onPick={pick} />}
 
+
+      {step.kind === 'explore' && (
+        <div className="choices explore">
+          {step.items.map((it, i) => (
+            <button key={it.label} className={`explore-item${explored.includes(i) ? ' seen' : ''}`}
+              onClick={() => { setExploreText(it.text); setExplored(e => e.includes(i) ? e : [...e, i]) }}>
+              <span className="explore-icon" aria-hidden>{it.icon}</span>
+              <span className="explore-label">{it.label}</span>
+              {explored.includes(i) && <span className="explore-check" aria-label="ดูแล้ว">✓</span>}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {step.kind === 'badge' && (
+        <div className="badge-reward" role="status">
+          <span className="badge-big" aria-hidden>{step.area.badge.icon}</span>
+          <b>{step.area.badge.name}</b>
+          <span>{step.area.name}</span>
+        </div>
+      )}
 
       {step.kind === 'memories' && (
         <div className="choices memories">

@@ -24,6 +24,14 @@ export interface Choice {
   feedback: string
 }
 
+/** สิ่งของให้แตะสำรวจก่อนเข้าภารกิจ (ไม่บังคับ ไม่นับคะแนน ไม่บันทึกข้อมูล) */
+export interface ExploreItem {
+  icon: string
+  label: string
+  /** ปุยพูดเมื่อแตะ */
+  text: string
+}
+
 export interface Mission {
   missionId: string
   area: string
@@ -32,11 +40,14 @@ export interface Mission {
   objective: string
   /** สถานการณ์ตามเอกสารต้นฉบับ (เปลี่ยน "น้องมดแดง" เป็น "มะลิ") */
   scenario: string
+  explore: ExploreItem[]
   intro: Line[]
   question: Line
   /** คำถามแบบง่าย สำหรับ Guided Mode */
   questionSimple: string
   choices: [Choice, Choice]
+  /** ผู้ใหญ่ในเกมพูดเสริมหลังตอบถูก */
+  correctLines: Line[]
   /** คำอธิบายความรู้หลังตอบ (ภาษาสำหรับเด็ก — ปุยเป็นคนพูด) */
   explanation: string
   /** คำอธิบายตามเอกสารต้นฉบับ */
@@ -59,13 +70,18 @@ export interface Area {
   name: string
   nameEn: string
   goal: string
+  /** ตราผู้พิทักษ์ที่ได้เมื่อจบดินแดน */
+  badge: { icon: string; name: string }
   intro: StoryBeat
   missions: string[]
   ending: StoryBeat
+  /** ฉากเปลี่ยนไปดินแดนถัดไป (ดินแดนสุดท้าย = null) */
+  transition: StoryBeat | null
 }
 
 export interface Story {
   version: string
+  title: string
   disclaimer: string
   opening: StoryBeat[]
   areas: Area[]
