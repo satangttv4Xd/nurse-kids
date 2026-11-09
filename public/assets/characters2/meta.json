@@ -1,0 +1,168 @@
+{
+ "mali": {
+  "body": [
+   400,
+   1100
+  ],
+  "busts": {
+   "neutral": [
+    556,
+    672
+   ],
+   "happy": [
+    568,
+    667
+   ],
+   "curious": [
+    639,
+    722
+   ],
+   "thinking": [
+    412,
+    726
+   ],
+   "gentle": [
+    443,
+    725
+   ]
+  },
+  "faces": [
+   "neutral",
+   "gentle",
+   "happy",
+   "curious",
+   "thinking",
+   "tired"
+  ]
+ },
+ "pui": {
+  "body": [
+   460,
+   635
+  ],
+  "busts": {
+   "neutral": [
+    460,
+    635
+   ],
+   "happy": [
+    412,
+    676
+   ],
+   "curious": [
+    519,
+    644
+   ],
+   "thinking": [
+    460,
+    607
+   ],
+   "gentle": [
+    427,
+    623
+   ]
+  },
+  "faces": [
+   "neutral",
+   "happy",
+   "curious",
+   "thinking",
+   "gentle"
+  ]
+ },
+ "mother": {
+  "body": [
+   359,
+   1100
+  ],
+  "busts": {
+   "neutral": [
+    561,
+    889
+   ],
+   "happy": [
+    376,
+    692
+   ],
+   "gentle": [
+    376,
+    721
+   ]
+  },
+  "faces": [
+   "neutral",
+   "happy",
+   "gentle"
+  ]
+ },
+ "teacher": {
+  "body": [
+   334,
+   1100
+  ],
+  "busts": {
+   "neutral": [
+    561,
+    889
+   ],
+   "happy": [
+    527,
+    770
+   ],
+   "gentle": [
+    519,
+    717
+   ],
+   "thinking": [
+    295,
+    715
+   ]
+  },
+  "faces": [
+   "neutral",
+   "happy",
+   "gentle",
+   "thinking"
+  ]
+ },
+ "kai": {
+  "body": [
+   450,
+   1100
+  ],
+  "busts": {
+   "neutral": [
+    368,
+    900
+   ],
+   "happy": [
+    402,
+    900
+   ],
+   "gentle": [
+    401,
+    900
+   ],
+   "curious": [
+    326,
+    900
+   ],
+   "thinking": [
+    294,
+    900
+   ],
+   "tired": [
+    326,
+    900
+   ]
+  },
+  "faces": [
+   "neutral",
+   "happy",
+   "gentle",
+   "curious",
+   "thinking",
+   "tired"
+  ]
+ }
+}

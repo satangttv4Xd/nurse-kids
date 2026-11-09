@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { NICKNAME_MAX, nicknameLength, sanitizeNickname } from './player'
-import { bustImage } from '../shared/characters'
+import { bodyImage, bustImage, faceImage } from '../shared/characters'
+import { HEROES, type CharacterType } from '../shared/hero'
 import { setSound, useSound } from './audio'
+import { BackIcon, BookIcon, BulbIcon, CheckIcon, GearIcon, MusicIcon, PauseIcon, PenIcon, PlayIcon, SpeakerIcon, StarIcon, TapIcon } from './Icons'
 
 /* ---------------- ตั้งค่าเสียง (ใช้ทั้งหน้าแรก หน้ากรอกชื่อ และในเกม) ---------------- */
 
@@ -10,7 +12,7 @@ export function SoundControls() {
   return (
     <div className="sound-controls">
       <div className="sound-row">
-        <span className="sound-name">🎵 เพลงพื้นหลัง</span>
+        <span className="sound-name"><MusicIcon size={44} /> เพลงพื้นหลัง</span>
         <button className={`btn sound-toggle${s.musicOn ? ' on' : ''}`} onClick={() => setSound({ musicOn: !s.musicOn })} aria-pressed={s.musicOn}>
           {s.musicOn ? 'เปิด' : 'ปิด'}
         </button>
@@ -19,7 +21,7 @@ export function SoundControls() {
           onChange={e => setSound({ musicVolume: Number(e.target.value) / 100 })} />
       </div>
       <div className="sound-row">
-        <span className="sound-name">🔔 เสียงตอบคำถาม</span>
+        <span className="sound-name"><SpeakerIcon size={44} /> เสียงตอบคำถาม</span>
         <button className={`btn sound-toggle${s.sfxOn ? ' on' : ''}`} onClick={() => setSound({ sfxOn: !s.sfxOn })} aria-pressed={s.sfxOn}>
           {s.sfxOn ? 'เปิด' : 'ปิด'}
         </button>
@@ -34,12 +36,23 @@ export function SoundControls() {
 export function SoundPanel({ onClose }: { onClose: () => void }) {
   return (
     <div className="overlay" onClick={onClose}>
-      <div className="panel" onClick={e => e.stopPropagation()}>
+      <div className="panel rpg-frame" onClick={e => e.stopPropagation()}>
         <h2>ตั้งค่าเสียง</h2>
         <SoundControls />
         <button className="btn btn-primary" onClick={onClose}>ปิด</button>
       </div>
     </div>
+  )
+}
+
+/* ---------------- โลโก้เกม (ตัวอักษรทองแบบแฟนตาซี) ---------------- */
+
+export function GameLogo({ size = 'lg', as: Tag = 'div' }: { size?: 'lg' | 'md' | 'sm'; as?: 'div' | 'h1' }) {
+  return (
+    <Tag className={`game-logo logo-${size}`} aria-label="ก้าวเล็ก ๆ — Little Steps: The Guardian's Journey">
+      <span className="logo-th" aria-hidden>ก้าวเล็ก ๆ</span>
+      <span className="logo-ribbon" aria-hidden><i />LITTLE STEPS<b>·</b>THE GUARDIAN'S JOURNEY<i /></span>
+    </Tag>
   )
 }
 
@@ -58,43 +71,55 @@ function Statement() {
 export function IntroScreen({ onNext }: { onNext: () => void }) {
   return (
     <div className="intro-screen">
-      <img className="bg nick-bg" src="/assets/bg/scene01.jpg" alt="" draggable={false} />
+      <img className="bg nick-bg" src="/assets/bg2/scene19.jpg" alt="" draggable={false} />
       <div className="nick-veil" />
-      <div className="intro-card">
-        <img className="intro-logo" src="/assets/ui/logo.png" alt="ก้าวเล็ก ๆ" draggable={false} />
+      <div className="intro-card rpg-frame">
+        <GameLogo size="md" />
         <p className="intro-text"><Statement /></p>
-        <button className="btn btn-big btn-mint" onClick={onNext} autoFocus>ต่อไป ▶</button>
+        <button className="btn btn-big btn-primary" onClick={onNext} autoFocus>ต่อไป ▶</button>
       </div>
     </div>
   )
 }
 
-/* ---------------- หน้าเข้าเกม (ใช้ภาพจากโฟลเดอร์ หน้าเข้าเกม) ---------------- */
-// ปุ่มในภาพเป็นส่วนหนึ่งของภาพวาด จึงวางปุ่มโปร่งใสทับตำแหน่งปุ่มในภาพ (พิกัดบนเวที 1920×1080)
+/* ---------------- เมนูหลัก (Fantasy RPG) ---------------- */
 
 export function TitleScreen({ onStart }: { onStart: () => void }) {
   const sound = useSound()
   const [panel, setPanel] = useState<null | 'settings' | 'about'>(null)
   return (
     <div className="title-screen">
-      <img className="bg" src="/assets/ui/title.jpg" alt="" draggable={false} />
-      <p className="title-credit">พัฒนาโดย สาขาความมั่นคงไซเบอร์ มหาวิทยาลัยสวนดุสิต</p>
-      <h1 className="sr-only">ก้าวเล็ก ๆ — การเดินทางสู่สุขภาพของฉัน</h1>
+      <img className="bg" src="/assets/bg2/scene01.jpg" alt="" draggable={false} />
+      <div className="menu-veil" aria-hidden />
+      <img className="menu-char menu-mali" src="/assets/characters2/mali/body.webp" alt="" draggable={false} />
+      <img className="menu-char menu-pui" src="/assets/characters2/pui/body.webp" alt="" draggable={false} />
 
-      <button className="hotspot" style={{ left: 215, top: 420, width: 705, height: 245, borderRadius: 120 }} onClick={onStart} aria-label="เริ่มเกม" />
-      <button className="hotspot" style={{ left: 215, top: 700, width: 328, height: 125, borderRadius: 62 }} onClick={() => setPanel('settings')} aria-label="ตั้งค่า" />
-      <button className="hotspot" style={{ left: 575, top: 700, width: 345, height: 125, borderRadius: 62 }} onClick={() => setPanel('about')} aria-label="เกี่ยวกับเกม">
-        {/* ป้ายทับคำว่า “คณะผู้จัดทำ” ที่วาดอยู่ในภาพ */}
-        <span className="title-label" aria-hidden>เกี่ยวกับ</span>
-      </button>
-      <button className={`hotspot round${sound.musicOn ? '' : ' muted'}`} style={{ left: 1570, top: 62, width: 122, height: 122 }}
-        onClick={() => setSound({ musicOn: !sound.musicOn })} aria-label={sound.musicOn ? 'ปิดเพลง' : 'เปิดเพลง'} aria-pressed={!sound.musicOn} />
-      <button className={`hotspot round${sound.sfxOn ? '' : ' muted'}`} style={{ left: 1726, top: 48, width: 140, height: 140 }}
-        onClick={() => setSound({ sfxOn: !sound.sfxOn })} aria-label={sound.sfxOn ? 'ปิดเสียงตอบคำถาม' : 'เปิดเสียงตอบคำถาม'} aria-pressed={!sound.sfxOn} />
+      <GameLogo as="h1" />
+
+      <nav className="menu-btns" aria-label="เมนูหลัก">
+        <button className="menu-btn menu-start" onClick={onStart}>
+          <PlayIcon size={60} /><span>เริ่มการผจญภัย</span>
+        </button>
+        <button className="menu-btn" onClick={() => setPanel('settings')}>
+          <GearIcon size={52} /><span>ตั้งค่า</span>
+        </button>
+        <button className="menu-btn" onClick={() => setPanel('about')}>
+          <BookIcon size={52} /><span>เกี่ยวกับ</span>
+        </button>
+      </nav>
+
+      <div className="menu-sound">
+        <button className={`coin-btn${sound.musicOn ? '' : ' off'}`} onClick={() => setSound({ musicOn: !sound.musicOn })}
+          aria-label={sound.musicOn ? 'ปิดเพลง' : 'เปิดเพลง'} aria-pressed={sound.musicOn}><MusicIcon size={64} /></button>
+        <button className={`coin-btn${sound.sfxOn ? '' : ' off'}`} onClick={() => setSound({ sfxOn: !sound.sfxOn })}
+          aria-label={sound.sfxOn ? 'ปิดเสียงตอบคำถาม' : 'เปิดเสียงตอบคำถาม'} aria-pressed={sound.sfxOn}><SpeakerIcon size={64} /></button>
+      </div>
+
+      <p className="title-credit">พัฒนาโดย สาขาความมั่นคงไซเบอร์ มหาวิทยาลัยสวนดุสิต</p>
 
       {panel && (
         <div className="overlay" onClick={() => setPanel(null)}>
-          <div className="panel" onClick={e => e.stopPropagation()}>
+          <div className="panel rpg-frame" onClick={e => e.stopPropagation()}>
             {panel === 'settings' ? (
               <>
                 <h2>ตั้งค่าเสียง</h2>
@@ -123,8 +148,8 @@ export function NicknameScreen({ name, setName, onStart, onHowTo, onBack }: {
   const [error, setError] = useState('')
   const [soundOpen, setSoundOpen] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
-  const mali = bustImage('mali', 'happy')
-  const pui = bustImage('pui', 'happy')
+  const mali = bustImage('mali', 'happy')!
+  const pui = bustImage('pui', 'happy')!
 
   const submit = () => {
     const clean = sanitizeNickname(name).trim()
@@ -138,19 +163,18 @@ export function NicknameScreen({ name, setName, onStart, onHowTo, onBack }: {
 
   return (
     <div className="nick-screen">
-      <img className="bg nick-bg" src="/assets/bg/scene01.jpg" alt="" draggable={false} />
+      <img className="bg nick-bg" src="/assets/bg2/scene04.jpg" alt="" draggable={false} />
       <div className="nick-veil" />
 
       <header className="nick-head">
-        <img className="nick-logo" src="/assets/ui/logo.png" alt="ก้าวเล็ก ๆ" draggable={false} />
-        <p className="nick-title">Little Steps: My Health Journey</p>
+        <GameLogo size="sm" />
         <p className="nick-welcome">ยินดีต้อนรับสู่การผจญภัยของมะลิและปุย</p>
       </header>
 
       <img className="nick-char nick-mali" src={mali.src} alt="มะลิ" draggable={false} />
       <img className="nick-char nick-pui" src={pui.src} alt="ปุย" draggable={false} />
 
-      <form className="nick-card" onSubmit={e => { e.preventDefault(); submit() }} noValidate>
+      <form className="nick-card rpg-frame" onSubmit={e => { e.preventDefault(); submit() }} noValidate>
         <label htmlFor="nickname" className="nick-label">หนูชื่อเล่นอะไรจ๊ะ?</label>
         <input
           id="nickname"
@@ -172,36 +196,158 @@ export function NicknameScreen({ name, setName, onStart, onHowTo, onBack }: {
       </form>
 
       <div className="nick-actions">
-        <button className="btn btn-big btn-mint" onClick={submit}>เริ่มการผจญภัย ▶</button>
-        <button className="btn btn-big btn-blue" onClick={onHowTo}>วิธีเล่น 📖</button>
+        <button className="btn btn-big btn-primary" onClick={submit}>เริ่มการผจญภัย ▶</button>
+        <button className="btn btn-big btn-icon" onClick={onHowTo}><BookIcon size={52} /> วิธีเล่น</button>
       </div>
 
       {/* วางหลังส่วนหัว เพื่อให้อยู่ด้านบนและกดได้ */}
-      <button className="icon-btn nick-back" onClick={onBack} aria-label="กลับหน้าแรก">◀</button>
-      <button className="icon-btn nick-sound" onClick={() => setSoundOpen(true)} aria-label="ตั้งค่าเสียง">🎵</button>
+      <button className="icon-btn nick-back" onClick={onBack} aria-label="กลับหน้าแรก"><BackIcon size={56} /></button>
+      <button className="icon-btn nick-sound" onClick={() => setSoundOpen(true)} aria-label="ตั้งค่าเสียง"><MusicIcon size={56} /></button>
       {soundOpen && <SoundPanel onClose={() => setSoundOpen(false)} />}
     </div>
   )
 }
 
+/* ---------------- หน้าเลือกตัวละคร + กรอกชื่อเล่น ---------------- */
+
+export const NICK_MIN = 2
+export const NICK_MAX = 16
+
+/** ตรวจชื่อเล่น — คืนข้อความแจ้งเตือน (ภาษาไทยสุภาพ) หรือ '' ถ้าใช้ได้ */
+export function nicknameError(name: string): string {
+  const clean = name.trim()
+  if (!clean) return 'กรุณาพิมพ์ชื่อเล่นก่อนนะ'
+  if (nicknameLength(clean) < NICK_MIN) return `ชื่อเล่นต้องมีอย่างน้อย ${NICK_MIN} ตัวอักษรนะ`
+  return ''
+}
+
+export function CharacterSelectScreen({ name, setName, hero, setHero, onStart, onHowTo, onBack }: {
+  name: string; setName: (s: string) => void
+  hero: CharacterType | null; setHero: (h: CharacterType) => void
+  onStart: (nickname: string, hero: CharacterType) => void; onHowTo: () => void; onBack: () => void
+}) {
+  const [touched, setTouched] = useState(false)
+  const [soundOpen, setSoundOpen] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const error = nicknameError(name)
+  const ready = !error && hero !== null
+  const chosen = hero ? HEROES[hero] : null
+  // ชื่อสำหรับแสดงตัวอย่าง: ผ่านการกรองอักขระแล้ว และ React แสดงเป็นข้อความธรรมดาเสมอ (ไม่ตีความ HTML)
+  const preview = name.trim()
+
+  const submit = () => {
+    setTouched(true)
+    if (error) { inputRef.current?.focus(); return }
+    if (hero) onStart(preview, hero)
+  }
+
+  return (
+    <div className="select-screen">
+      <img className="bg nick-bg" src="/assets/bg2/scene04.jpg" alt="" draggable={false} />
+      <div className="nick-veil" />
+
+      <header className="select-head">
+        <h1>เลือกตัวละครของคุณ</h1>
+        <p className="select-sub"><i />CHOOSE YOUR GUARDIAN<i /></p>
+        <p className="select-lead">ก่อนออกเดินทาง มาเลือกตัวละครที่คุณชอบกันเถอะ</p>
+      </header>
+
+      <div className="select-tools">
+        <button className="icon-btn" onClick={onHowTo} aria-label="วิธีเล่น"><BookIcon size={56} /></button>
+        <button className="icon-btn" onClick={() => setSoundOpen(true)} aria-label="ตั้งค่าเสียง"><MusicIcon size={56} /></button>
+      </div>
+
+      {/* ซ้าย: ชื่อเล่น + ตัวอย่าง */}
+      <section className="select-left rpg-frame">
+        <form className="nick-form" onSubmit={e => { e.preventDefault(); submit() }} noValidate>
+          <label htmlFor="nickname" className="nick-label"><PenIcon size={46} /> คุณอยากให้เราเรียกคุณว่าอะไร?</label>
+          <input
+            id="nickname"
+            ref={inputRef}
+            className={`nick-input${touched && error ? ' invalid' : ''}`}
+            value={name}
+            onChange={e => setName(graphemesSlice(sanitizeNickname(e.target.value), NICK_MAX))}
+            onBlur={() => name && setTouched(true)}
+            placeholder="พิมพ์ชื่อเล่นของคุณ..."
+            autoComplete="off" autoCorrect="off" spellCheck={false} enterKeyHint="done"
+            aria-invalid={touched && !!error} aria-describedby="nick-hint"
+          />
+          <p id="nick-hint" className={`nick-hint${touched && error ? ' error' : ''}`} role={touched && error ? 'alert' : undefined}>
+            {touched && error ? error : `ใช้ชื่อเล่นเท่านั้น ไม่ต้องใช้ชื่อจริง · ${nicknameLength(name)}/${NICK_MAX}`}
+          </p>
+        </form>
+
+        <div className={`select-preview${chosen ? ' has-hero' : ''}`} aria-live="polite">
+          <div className="preview-art" aria-hidden>
+            {chosen
+              ? <img key={chosen.characterId} className="preview-hero" src={faceImage(chosen.characterId, 'happy')} alt="" draggable={false} />
+              : <span className="preview-empty">?</span>}
+            <img className="preview-pui" src="/assets/characters2/pui/bust-happy.webp" alt="" draggable={false} />
+          </div>
+          <p className="preview-text">
+            ยินดีต้อนรับ <b>{preview || '…'}</b>!
+            <small>{chosen ? `ออกผจญภัยในฐานะ${chosen.name} พร้อมปุยนุ่ม` : 'เลือกตัวละครทางขวาได้เลย'}</small>
+          </p>
+        </div>
+      </section>
+
+      {/* ขวา: การ์ดตัวละคร */}
+      <div className="select-cards" role="radiogroup" aria-label="เลือกตัวละคร">
+        {(['male', 'female'] as CharacterType[]).map(type => {
+          const h = HEROES[type]
+          const on = hero === type
+          return (
+            <button key={type} role="radio" aria-checked={on} className={`hero-card${on ? ' on' : ''}${hero && !on ? ' dim' : ''}`}
+              onClick={() => setHero(type)}>
+              <span className="hero-tag">{h.title}</span>
+              <span className="hero-art"><img src={bodyImage(h.characterId)} alt="" draggable={false} /></span>
+              <span className="hero-info">
+                <b className="hero-name">{h.name}</b>
+                <span className="hero-desc">{h.desc}</span>
+              </span>
+              {on && <span className="hero-picked"><CheckIcon size={36} /> เลือกตัวละครนี้แล้ว</span>}
+            </button>
+          )
+        })}
+      </div>
+
+      <div className="select-actions">
+        <button className="btn btn-big btn-back-big" onClick={onBack}><BackIcon size={48} /> ย้อนกลับ</button>
+        <p className="select-status" aria-live="polite">
+          {ready ? '' : error && hero ? 'พิมพ์ชื่อเล่นก่อนนะ' : !hero && !error ? 'เลือกตัวละครก่อนนะ' : 'พิมพ์ชื่อเล่นและเลือกตัวละครก่อนนะ'}
+        </p>
+        <button className="btn btn-big btn-emerald" onClick={submit} disabled={!ready}><StarIcon size={52} /> เริ่มการผจญภัย</button>
+      </div>
+
+      {soundOpen && <SoundPanel onClose={() => setSoundOpen(false)} />}
+    </div>
+  )
+}
+
+const graphemesSlice = (s: string, n: number) => {
+  const Seg = (Intl as unknown as { Segmenter?: new (l: string, o: { granularity: string }) => { segment(s: string): Iterable<{ segment: string }> } }).Segmenter
+  const parts = Seg ? Array.from(new Seg('th', { granularity: 'grapheme' }).segment(s), x => x.segment) : Array.from(s)
+  return parts.slice(0, n).join('')
+}
+
 /* ---------------- หน้าวิธีเล่น ---------------- */
 
 const HOWTO = [
-  { img: '/assets/characters/pui/bust-curious.png', icon: '▶', text: 'ฟังเรื่องราว แล้วแตะ “ต่อไป”' },
-  { img: '/assets/choices/m01_a.jpg', icon: '👆', text: 'แตะเลือกรูปที่หนูคิดว่าดีที่สุด' },
-  { img: null, icon: '💡', text: 'ไม่แน่ใจ? แตะหลอดไฟ ปุยจะช่วยใบ้' },
-  { img: null, icon: '⏸', text: 'อยากพัก แตะปุ่มพักได้ตลอดเวลา' },
+  { img: '/assets/characters2/pui/bust-curious.webp', icon: <PlayIcon size={150} />, text: 'ฟังเรื่องราว แล้วแตะ “ต่อไป”' },
+  { img: null, icon: <TapIcon size={150} />, text: 'แตะเลือกรูปที่หนูคิดว่าดีที่สุด' },
+  { img: null, icon: <BulbIcon size={150} />, text: 'ไม่แน่ใจ? แตะหลอดไฟ ปุยจะช่วยใบ้' },
+  { img: null, icon: <PauseIcon size={150} />, text: 'อยากพัก แตะปุ่มพักได้ตลอดเวลา' },
 ]
 
 export function HowToScreen({ onBack }: { onBack: () => void }) {
   return (
     <div className="howto-screen">
-      <img className="bg nick-bg" src="/assets/bg/scene01.jpg" alt="" draggable={false} />
+      <img className="bg nick-bg" src="/assets/bg2/scene02.jpg" alt="" draggable={false} />
       <div className="nick-veil" />
       <h2 className="howto-title">วิธีเล่น</h2>
       <div className="howto-grid">
         {HOWTO.map((h, i) => (
-          <div key={i} className="howto-card">
+          <div key={i} className="howto-card rpg-frame">
             <div className="howto-pic">
               {h.img ? <img src={h.img} alt="" draggable={false} /> : <span className="howto-icon">{h.icon}</span>}
               <span className="howto-num">{i + 1}</span>
@@ -210,8 +356,8 @@ export function HowToScreen({ onBack }: { onBack: () => void }) {
           </div>
         ))}
       </div>
-      <p className="howto-note">ไม่มีจับเวลา ตอบไม่ถูกก็ลองใหม่ได้เสมอนะ 💛</p>
-      <button className="btn btn-big btn-primary howto-back" onClick={onBack}>◀ กลับหน้าแรก</button>
+      <p className="howto-note">ไม่มีจับเวลา ตอบไม่ถูกก็ลองใหม่ได้เสมอนะ</p>
+      <button className="btn btn-big btn-primary howto-back" onClick={onBack}>◀ กลับ</button>
     </div>
   )
 }
@@ -225,7 +371,7 @@ export function LoadingScreen({ nickname, onDone }: { nickname: string; onDone: 
   }, [onDone])
   return (
     <div className="loading-screen" role="status">
-      <img className="loading-pui" src="/assets/characters/pui/bust-happy.png" alt="" draggable={false} />
+      <img className="loading-pui" src="/assets/characters2/pui/bust-happy.webp" alt="" draggable={false} />
       <p className="loading-text">สวัสดี {nickname}! กำลังเตรียมการผจญภัย</p>
       <div className="loading-dots" aria-hidden><span /><span /><span /></div>
     </div>

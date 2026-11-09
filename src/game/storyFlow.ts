@@ -14,7 +14,8 @@ export type Step =
   | { kind: 'memories'; sceneId: string }
   | { kind: 'final'; sceneId: string }
 
-const lines = (sceneId: string, ls: Line[]): Step[] => ls.map(line => ({ kind: 'line', sceneId, line }))
+// บรรทัดที่ระบุ sceneId เองจะแสดงในฉากนั้นแทนฉากของกลุ่ม
+const lines = (sceneId: string, ls: Line[]): Step[] => ls.map(line => ({ kind: 'line', sceneId: line.sceneId ?? sceneId, line }))
 
 export function buildSteps(): Step[] {
   const steps: Step[] = []
@@ -24,9 +25,9 @@ export function buildSteps(): Step[] {
     for (const id of area.missions) {
       const m = story.missions.find(x => x.missionId === id)
       if (!m) continue
-      // สำรวจฉาก (ไม่บังคับ) → บทนำ → คำถาม → ผู้ใหญ่พูดเสริม → คำอธิบาย → จบภารกิจ
-      if (m.explore?.length) steps.push({ kind: 'explore', sceneId: m.sceneId, mission: m, items: m.explore })
+      // บทนำ → สำรวจฉาก (ไม่บังคับ) → คำถาม → ผู้ใหญ่พูดเสริม → คำอธิบาย → จบภารกิจ
       steps.push(...lines(m.sceneId, m.intro))
+      if (m.explore?.length) steps.push({ kind: 'explore', sceneId: m.sceneId, mission: m, items: m.explore })
       steps.push({ kind: 'mission', sceneId: m.sceneId, mission: m })
       steps.push(...lines(m.sceneId, m.correctLines ?? []))
       steps.push({ kind: 'line', sceneId: m.sceneId, line: { speaker: 'pui', text: `💡 ${m.explanation}`, emotion: 'gentle' } })
@@ -38,8 +39,8 @@ export function buildSteps(): Step[] {
   }
   const [first, ...rest] = story.ending.beats
   if (first) steps.push(...lines(first.sceneId, first.lines))
-  steps.push({ kind: 'memories', sceneId: 's12' })
+  steps.push({ kind: 'memories', sceneId: 'g19' })
   for (const b of rest) steps.push(...lines(b.sceneId, b.lines))
-  steps.push({ kind: 'final', sceneId: 's12' })
+  steps.push({ kind: 'final', sceneId: 'g19' })
   return steps
 }

@@ -7,6 +7,8 @@ export interface Line {
   speaker: CharacterId | 'narrator'
   text: string
   emotion?: Emotion
+  /** แสดงในฉากนี้แทนฉากของกลุ่มบท (ไม่ระบุ = ใช้ฉากของกลุ่ม) */
+  sceneId?: string
   /** ไฟล์เสียงพากย์ (วางแผนไว้ ยังไม่มีไฟล์) */
   voice?: string
 }

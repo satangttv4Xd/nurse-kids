@@ -27,6 +27,7 @@ dist-ssr
 
 # research data (local dev database)
 database/data
+database/data.broken-*
 database/.dev-jwt-secret
 .env
 

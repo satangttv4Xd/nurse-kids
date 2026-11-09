@@ -4,6 +4,8 @@
 // ⚠️ การเก็บข้อมูลวิจัยกับเด็กจริงต้องได้รับการอนุมัติจริยธรรม ความยินยอมผู้ปกครอง และความยินยอมของเด็กก่อน
 //    ปิดการรับข้อมูลที่เซิร์ฟเวอร์ได้ด้วย COLLECTION_ENABLED=false
 
+import { HEROES, type CharacterType, type HeroId } from '../shared/hero'
+
 export const NICKNAME_MAX = 20
 const GAME_VERSION = '0.3.0'
 
@@ -27,6 +29,9 @@ export interface PlayerSession {
   sessionId: string
   /** ใช้แสดงในเกม */
   nickname: string
+  /** ตัวละครที่เลือก — ใช้ในเกมเท่านั้น (ยังไม่ส่งเข้าฐานข้อมูล: ตาราง session_settings ไม่มีช่องนี้ ต้องขออนุญาตแก้ schema ก่อน) */
+  characterType: CharacterType
+  characterId: HeroId
   startedAt: string
 }
 
@@ -37,11 +42,13 @@ const randomHex = (bytes: number) => {
 }
 const uuid = () => crypto.randomUUID?.() ?? `${randomHex(4)}-${randomHex(2)}-4${randomHex(2).slice(1)}-a${randomHex(2).slice(1)}-${randomHex(6)}`
 
-export function createSession(nickname: string): PlayerSession {
+export function createSession(nickname: string, characterType: CharacterType): PlayerSession {
   return {
     participantId: `P-${randomHex(4).toUpperCase()}`,
     sessionId: uuid(),
     nickname: sanitizeNickname(nickname).trim(),
+    characterType,
+    characterId: HEROES[characterType].characterId,
     startedAt: new Date().toISOString(),
   }
 }

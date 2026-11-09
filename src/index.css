@@ -3,7 +3,7 @@
   --lavender: #D9CCF0; --yellow: #FFE29A; --brown: #8A6A52; --ink: #5A4636;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body, #root { margin: 0; height: 100%; overflow: hidden; background: #2b2420; overscroll-behavior: none; }
+html, body, #root { margin: 0; height: 100%; overflow: hidden; background: #F1E7D6; overscroll-behavior: none; }
 body { font-family: 'Mali', 'Sarabun', system-ui, sans-serif; color: var(--ink); user-select: none; -webkit-user-select: none; touch-action: manipulation; }
 button { font: inherit; color: inherit; cursor: pointer; }
 button:disabled { opacity: .4; cursor: default; }
@@ -79,7 +79,7 @@ button:focus-visible { outline: 6px solid var(--blue); outline-offset: 4px; }
 @keyframes breathe { 0%, 100% { scale: 1 1; } 50% { scale: 1 1.012; } }
 
 /* ภาพครึ่งตัวผู้พูด */
-.bust { position: absolute; right: 40px; top: 0; bottom: 0; width: 600px; pointer-events: none; z-index: 2; overflow: hidden; }
+.bust { position: absolute; right: 30px; top: 0; bottom: 0; width: 680px; pointer-events: none; z-index: 2; overflow: hidden; }
 .bust img { position: absolute; left: 50%; top: 190px; translate: -50% 0; height: auto; filter: drop-shadow(0 0 14px rgba(255,248,236,.9)); animation: fade-in .25s ease-out; }
 @keyframes fade-in { from { opacity: 0; } }
 .bust.enter { animation: bust-in .45s ease-out both; }
@@ -90,26 +90,64 @@ button:focus-visible { outline: 6px solid var(--blue); outline-offset: 4px; }
 .final h1 { font-size: 80px; color: var(--pink-d); margin: 0 60px 20px; }
 .final p { font-size: 44px; margin: 0 0 12px; }
 .final b { font-size: 56px; letter-spacing: 6px; }
-/* กล่องบทสนทนา */
-.dialogue { position: absolute; left: 40px; right: 40px; bottom: 32px; min-height: 230px; z-index: 3; display: flex; gap: 32px; align-items: center;
-  background: linear-gradient(180deg, rgba(255,250,242,.94), rgba(255,244,236,.97)); border: 5px solid var(--pink); border-radius: 36px;
-  padding: 40px 48px 32px; box-shadow: 0 10px 30px rgba(90,70,54,.18); }
+/* กล่องบทสนทนา — สไตล์ JRPG แฟนตาซี: กรมท่าเข้ม + ขอบทอง */
+.dialogue { --navy: #14203a; --navy-2: #22355c; --gold: #d9b25f; --gold-l: #f3dc9a; --teal: #9fdcd2; --text: #fbf3e0;
+  position: absolute; left: 96px; right: 96px; bottom: 30px; min-height: 290px; z-index: 3; display: flex; gap: 36px; align-items: center;
+  background: linear-gradient(180deg, rgba(30,46,80,.94), rgba(14,22,42,.96)); color: var(--text);
+  border: 4px solid var(--gold); border-radius: 22px; padding: 52px 48px 36px 40px;
+  box-shadow: 0 0 0 4px rgba(14,22,42,.8), inset 0 0 0 2px rgba(243,220,154,.28), inset 0 2px 30px rgba(159,220,210,.08), 0 16px 40px rgba(0,0,0,.35); }
+/* ลายประดับมุมทั้งสี่ */
+.dialogue::after { content: ''; position: absolute; inset: -20px; pointer-events: none;
+  background-image: var(--orn), var(--orn), var(--orn), var(--orn); background-repeat: no-repeat;
+  background-position: top left, top right, bottom left, bottom right; }
+.dialogue { --orn: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M20 2 38 20 20 38 2 20Z' fill='%2314203a' stroke='%23d9b25f' stroke-width='3'/%3E%3Cpath d='M20 11 29 20 20 29 11 20Z' fill='%23f3dc9a'/%3E%3C/svg%3E"); }
 .ph-portrait { width: 200px; height: 200px; flex: none; }
-.dialogue-text { flex: 1; min-width: 0; font-size: 42px; position: relative; overflow-wrap: anywhere; }
-.dialogue-text p { margin: 0; line-height: 1.5; font-weight: 600; }
-.dialogue-text.narration p { font-style: italic; font-weight: 400; color: var(--brown); }
-.name { position: absolute; top: -78px; left: -8px; padding: 6px 30px; border-radius: 24px; font-size: 38px; color: #fff; background: var(--pink-d); box-shadow: 0 4px 0 rgba(0,0,0,.08); }
-.name-pui { background: #7FBFA6; }
-.name-mother { background: #9DB98A; }
-.name-teacher { background: #A48FD0; }
+/* ป้ายชื่อ กรอบทอง วางคร่อมขอบบน */
+.name { position: absolute; top: 0; left: 48px; translate: 0 -55%; z-index: 1; display: flex; align-items: center; gap: 14px;
+  padding: 8px 38px 10px; border-radius: 14px; font-size: 38px; font-weight: 700; letter-spacing: .5px; color: var(--gold-l);
+  background: linear-gradient(180deg, var(--navy-2), var(--navy)); border: 3px solid var(--gold);
+  box-shadow: 0 0 0 3px rgba(14,22,42,.75), 0 6px 14px rgba(0,0,0,.3); }
+.name::before { content: ''; width: 16px; height: 16px; rotate: 45deg; background: var(--c, var(--gold)); border: 2px solid var(--gold-l); }
+.name-mali { --c: #f2a7bb; }
+.name-pui { --c: #9fdcd2; }
+.name-mother { --c: #b9d79f; }
+.name-teacher { --c: #c3b0ec; }
+/* ปุ่มเล็กมุมขวาบน: อ่านซ้ำ / อัตโนมัติ */
+.dlg-tools { position: absolute; top: 0; right: 48px; translate: 0 -55%; z-index: 1; display: flex; gap: 16px; }
+.dlg-tool { min-height: 72px; padding: 0 28px; border-radius: 36px; font-size: 28px; font-weight: 600; color: var(--gold-l);
+  background: linear-gradient(180deg, var(--navy-2), var(--navy)); border: 3px solid var(--gold); box-shadow: 0 0 0 3px rgba(14,22,42,.75); }
+.dlg-tool.on { color: var(--navy); background: linear-gradient(180deg, var(--gold-l), var(--gold)); }
+.dlg-tool:focus-visible, .dialogue .btn:focus-visible { outline: 6px solid var(--teal); outline-offset: 4px; }
+/* รูปหน้าผู้พูดด้านซ้าย */
+.portrait-frame { flex: none; width: 196px; height: 196px; border-radius: 18px; overflow: hidden; position: relative;
+  background: radial-gradient(circle at 50% 40%, #3a5487, var(--navy) 75%); border: 4px solid var(--gold);
+  box-shadow: 0 0 0 3px rgba(14,22,42,.8), inset 0 0 0 2px rgba(243,220,154,.3); }
+.portrait { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center bottom; animation: fade-in .25s ease-out; }
+/* ข้อความ: ฟอนต์อ่านง่าย ตัวใหญ่ คอนทราสต์สูง */
+.dialogue-text { flex: 1; min-width: 0; font-family: 'Sarabun', 'Mali', system-ui, sans-serif; font-size: 42px; position: relative; overflow-wrap: anywhere; }
+.dialogue-text p { margin: 0; line-height: 1.55; font-weight: 600; color: var(--text); text-shadow: 0 2px 2px rgba(0,0,0,.35); }
+.is-narration .dialogue-text p { font-weight: 400; color: var(--teal); }
+.type-rest { visibility: hidden; }   /* จองพื้นที่ไว้ กล่องไม่ขยับระหว่างพิมพ์ */
+.next-ind { display: inline-block; margin-left: 14px; font-size: 28px; color: var(--gold); animation: next-bob 1.8s ease-in-out infinite; }
+@keyframes next-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
 /* ปุ่มอยู่ในแถวเดียวกับข้อความ (ไม่ลอยทับ) — ข้อความยาวจะขึ้นบรรทัดใหม่ก่อนถึงปุ่มเสมอ */
 .nav { flex: none; align-self: flex-end; display: flex; gap: 20px; margin-bottom: -4px; }
+.dialogue .btn { border: 3px solid var(--gold); box-shadow: 0 6px 0 rgba(0,0,0,.35); }
+.dialogue .btn-back { background: linear-gradient(180deg, var(--navy-2), var(--navy)); color: var(--gold-l); }
+.dialogue .btn-primary { background: linear-gradient(180deg, var(--gold-l), var(--gold)); color: var(--navy); }
+@media (prefers-reduced-motion: reduce) { .next-ind, .portrait { animation: none; } }
+
+/* ตั้งค่าความเร็วตัวอักษร (หน้าพัก) */
+.text-controls { display: flex; align-items: center; gap: 24px; }
+.text-controls-label { font-size: 34px; font-weight: 700; }
+.seg { display: flex; gap: 10px; }
+.seg-btn { min-height: 84px; min-width: 120px; padding: 0 24px; border: 3px solid var(--pink); border-radius: 42px; background: #fff; font-size: 32px; font-weight: 600; }
+.seg-btn.on { background: var(--pink-d); border-color: var(--pink-d); color: #fff; }
 
 .overlay { position: absolute; inset: 0; z-index: 20; background: rgba(90,70,54,.45); display: flex; align-items: center; justify-content: center; }
-.panel { background: var(--cream); border-radius: 48px; padding: 64px 96px; display: flex; flex-direction: column; gap: 32px; align-items: center; }
-.panel h2 { font-size: 64px; margin: 0; }
-.portrait { width: 170px; height: 170px; flex: none; object-fit: contain; object-position: center bottom;
-  background: #fff; border-radius: 50%; border: 6px solid var(--pink); }
+.panel { background: var(--cream); border-radius: 48px; padding: 64px 96px; display: flex; flex-direction: column; gap: 32px; align-items: center;
+  border: 8px solid #fff; box-shadow: 0 0 0 5px var(--pink), 0 24px 60px rgba(90,70,54,.25); }
+.panel h2 { font-size: 64px; margin: 0; color: var(--pink-d); -webkit-text-stroke: 10px #fff; paint-order: stroke fill; }
 .choices-2 { gap: 60px; }
 .choices-2 .choice { width: 440px; height: 440px; position: relative; }
 .choices-2 .choice-label { font-size: 32px; min-height: 90px; }
@@ -218,12 +256,6 @@ button:focus-visible { outline: 6px solid var(--blue); outline-offset: 4px; }
 .intro-text { margin: 0; font-size: 46px; line-height: 1.6; font-weight: 600; color: var(--ink); }
 .about-text { max-width: 1100px; text-align: center; line-height: 1.6; }
 .nobr { white-space: nowrap; }
-/* ป้าย “เกี่ยวกับ” ทับข้อความในภาพปุ่มหน้าเข้าเกม (พิกัดภายในปุ่ม hotspot left:575 top:700) */
-.title-label { position: absolute; left: 14px; top: 17px; width: 252px; height: 94px; border-radius: 47px 20px 20px 47px;
-  background: linear-gradient(180deg, #B3DCF3 0%, #A6D5F0 55%, #9FCFEE 100%);
-  display: flex; align-items: center; justify-content: center; pointer-events: none;
-  font-family: 'Mali', sans-serif; font-size: 60px; font-weight: 700; color: #fff; letter-spacing: 1px;
-  -webkit-text-stroke: 9px #4F86B4; paint-order: stroke fill; text-shadow: 0 3px 0 rgba(60,100,140,.35); }
 /* ข้อความผู้พัฒนา — วางในช่องว่างสีครีมด้านล่างของภาพหน้าเข้าเกม */
 .title-credit { position: absolute; left: 50%; bottom: 22px; translate: -50% 0; margin: 0; padding: 8px 36px; white-space: nowrap; pointer-events: none;
   font-size: 28px; font-weight: 600; color: #8A6E58; background: rgba(255,250,240,.82); border-radius: 30px; box-shadow: 0 2px 10px rgba(90,70,54,.12); }
@@ -251,3 +283,263 @@ button:focus-visible { outline: 6px solid var(--blue); outline-offset: 4px; }
 @keyframes badge-in { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .badge-reward { animation: none; } .badge-slot { transition: none; } }
 .choices-2 .choice-label { font-size: 27px; line-height: 1.3; min-height: 110px; }
+
+/* ฉากโทนกลางคืน — หรี่และอมน้ำเงินแบบคงที่ (ไม่มีการเปลี่ยนความสว่างฉับพลัน) */
+.bg.scene-in { animation: scene-in 1s ease both; }
+@keyframes scene-in { from { opacity: 0; } to { opacity: 1; } }
+.night-tint { position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at 70% 10%, rgba(120,140,220,.25), transparent 45%), rgba(16,22,70,.58); mix-blend-mode: multiply; }
+.night-tint.dusk { animation: dusk 3.5s ease both; }
+@keyframes dusk { from { opacity: 0; } to { opacity: 1; } }
+/* ฉากที่มีทั้งคุณแม่และคุณครู — ยืนคนละตำแหน่ง */
+.slot-mother + .slot-teacher, .slot-teacher + .slot-mother { left: 1000px; }
+@media (prefers-reduced-motion: reduce) { .bg.scene-in, .night-tint.dusk { animation: none; } }
+
+/* =====================================================================
+   ธีม Fantasy RPG — กรมท่าเข้ม + ทอง (ใช้ทั้งเกม)
+   ไม่มีการกะพริบ / แสงวาบ — เอฟเฟกต์ทั้งหมดเป็นการเปลี่ยนแบบนุ่มนวล
+   ===================================================================== */
+:root {
+  --navy: #14203a; --navy-2: #22355c; --navy-3: #2f4776; --gold: #d9b25f; --gold-l: #f3dc9a; --gold-d: #a8823a;
+  --teal: #9fdcd2; --parch: #fbf3e0; --parch-2: #d9cfbb;
+  --orn: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M20 2 38 20 20 38 2 20Z' fill='%2314203a' stroke='%23d9b25f' stroke-width='3'/%3E%3Cpath d='M20 11 29 20 20 29 11 20Z' fill='%23f3dc9a'/%3E%3C/svg%3E");
+}
+html, body, #root { background: #0b1222; }
+body { font-family: 'Sarabun', 'Leelawadee UI', system-ui, sans-serif; color: var(--parch); }
+button:focus-visible { outline-color: var(--teal); }
+.stage { background: var(--navy); }
+
+/* กรอบมาตรฐาน: พื้นกรมท่า ขอบทอง เส้นทองบางด้านใน ลายเพชรที่มุม */
+.rpg-frame { position: relative; color: var(--parch);
+  background: linear-gradient(180deg, rgba(30,46,80,.95), rgba(14,22,42,.97)) !important;
+  border: 4px solid var(--gold) !important; border-radius: 22px !important;
+  box-shadow: 0 0 0 4px rgba(14,22,42,.85), inset 0 0 0 2px rgba(243,220,154,.28), 0 20px 50px rgba(0,0,0,.45) !important; }
+.rpg-frame::after { content: ''; position: absolute; inset: -20px; pointer-events: none;
+  background-image: var(--orn), var(--orn), var(--orn), var(--orn); background-repeat: no-repeat;
+  background-position: top left, top right, bottom left, bottom right; }
+
+/* ปุ่มทั่วไป */
+.btn { font-family: 'Trirong', 'Sarabun', serif; font-weight: 700; letter-spacing: .5px; color: var(--gold-l); border: 3px solid var(--gold); border-radius: 18px;
+  background: linear-gradient(180deg, var(--navy-3), var(--navy)); box-shadow: 0 0 0 3px rgba(14,22,42,.8), 0 8px 0 rgba(0,0,0,.35);
+  transition: filter .18s ease, transform .18s ease; display: inline-flex; align-items: center; justify-content: center; gap: 18px; }
+.btn:hover:not(:disabled) { filter: brightness(1.12); }
+.btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 3px rgba(14,22,42,.8), 0 4px 0 rgba(0,0,0,.35); }
+.btn-primary, .btn-mint { color: var(--navy); background: linear-gradient(180deg, #fbe7ae, var(--gold) 70%, var(--gold-d)); text-shadow: 0 1px 0 rgba(255,255,255,.4); }
+.btn-blue, .btn-icon { color: var(--gold-l); background: linear-gradient(180deg, var(--navy-3), var(--navy)); }
+.btn-big { border-radius: 22px; }
+.icon-btn { display: inline-flex; align-items: center; justify-content: center; color: var(--gold-l); border: 3px solid var(--gold);
+  background: radial-gradient(circle at 50% 35%, var(--navy-3), var(--navy) 75%); box-shadow: 0 0 0 4px rgba(14,22,42,.75), 0 8px 18px rgba(0,0,0,.35);
+  transition: filter .18s ease, transform .18s ease; }
+.icon-btn:hover { filter: brightness(1.15); }
+.icon-btn:active { transform: translateY(3px); }
+.assist-btn.on { color: var(--navy); background: radial-gradient(circle at 50% 35%, #fbe7ae, var(--gold) 75%); box-shadow: 0 0 0 4px rgba(14,22,42,.75), 0 0 24px rgba(243,220,154,.6); }
+
+/* หน้าต่าง (พัก / ตั้งค่า / เกี่ยวกับ) */
+.overlay { background: rgba(6,10,24,.66); }
+.panel { color: var(--parch); }
+.panel h2 { font-family: 'Trirong', serif; color: var(--gold-l); -webkit-text-stroke: 0; text-shadow: 0 3px 0 rgba(0,0,0,.4), 0 0 24px rgba(243,220,154,.25); letter-spacing: 1px; }
+.panel h2::before, .panel h2::after { content: '◆'; font-size: .45em; color: var(--gold); vertical-align: middle; margin: 0 24px; }
+.panel-text { color: var(--parch); }
+.sound-name { display: inline-flex; align-items: center; gap: 16px; color: var(--parch); }
+.sound-name svg { color: var(--gold); }
+.sound-toggle { color: var(--parch-2); background: linear-gradient(180deg, var(--navy-2), var(--navy)); }
+.sound-toggle.on { color: var(--navy); border-color: var(--teal); background: linear-gradient(180deg, #d5f5ef, var(--teal)); }
+.sound-range { background: var(--navy); box-shadow: inset 0 0 0 2px var(--gold-d); }
+.sound-range::-webkit-slider-thumb { background: radial-gradient(circle at 40% 35%, #fbe7ae, var(--gold)); border: 5px solid var(--navy); box-shadow: 0 0 0 3px var(--gold); }
+.sound-range::-moz-range-thumb { background: var(--gold); border: 5px solid var(--navy); box-shadow: 0 0 0 3px var(--gold); }
+.text-controls-label { color: var(--parch); }
+.seg-btn { color: var(--parch-2); border: 3px solid var(--gold-d); background: var(--navy); border-radius: 14px; }
+.seg-btn.on { color: var(--navy); border-color: var(--gold); background: linear-gradient(180deg, #fbe7ae, var(--gold)); }
+
+/* โลโก้ตัวอักษรทอง */
+.game-logo { display: flex; flex-direction: column; align-items: center; margin: 0; pointer-events: none; }
+.logo-th { font-family: 'Trirong', serif; font-weight: 700; line-height: 1.25; padding: 0 .1em;
+  background: linear-gradient(180deg, #fff6d6 0%, #f3dc9a 38%, #d9b25f 62%, #a8823a 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 3px 0 #3a2a10) drop-shadow(0 0 2px #14203a) drop-shadow(0 8px 18px rgba(0,0,0,.55)); }
+.logo-ribbon { display: flex; align-items: center; gap: 18px; margin-top: -.1em; padding: .35em 1.1em; font-family: 'Cinzel', serif; font-weight: 800; letter-spacing: .14em; white-space: nowrap;
+  color: var(--gold-l); background: linear-gradient(180deg, var(--navy-2), var(--navy)); border: 3px solid var(--gold); border-radius: 10px;
+  box-shadow: 0 0 0 3px rgba(14,22,42,.8), 0 8px 18px rgba(0,0,0,.4); }
+.logo-ribbon b { color: var(--gold); }
+.logo-ribbon i { width: 14px; height: 14px; rotate: 45deg; background: var(--gold); flex: none; }
+.logo-lg .logo-th { font-size: 168px; }  .logo-lg .logo-ribbon { font-size: 30px; }
+.logo-md .logo-th { font-size: 120px; }  .logo-md .logo-ribbon { font-size: 24px; }
+.logo-sm .logo-th { font-size: 96px; }   .logo-sm .logo-ribbon { font-size: 20px; }
+
+/* ---------- เมนูหลัก ---------- */
+.menu-veil { position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(90deg, rgba(8,14,32,.86) 0%, rgba(8,14,32,.62) 34%, rgba(8,14,32,.08) 60%, transparent 75%),
+              linear-gradient(0deg, rgba(8,14,32,.6), transparent 30%); }
+.menu-char { position: absolute; pointer-events: none; filter: drop-shadow(0 0 22px rgba(255,226,160,.35)) drop-shadow(0 18px 20px rgba(0,0,0,.4)); }
+.menu-mali { right: 300px; bottom: -60px; height: 960px; animation: breathe 5s ease-in-out infinite; transform-origin: bottom center; }
+.menu-pui { right: 70px; bottom: 40px; height: 400px; animation: breathe 5s ease-in-out -2s infinite; transform-origin: bottom center; }
+.title-screen .game-logo { position: absolute; left: 130px; top: 70px; width: 820px; }
+.menu-btns { position: absolute; left: 200px; top: 490px; width: 680px; display: flex; flex-direction: column; gap: 34px; }
+.menu-btn { position: relative; display: flex; align-items: center; gap: 30px; height: 118px; padding: 0 48px;
+  font-family: 'Trirong', serif; font-size: 50px; font-weight: 700; letter-spacing: 1px; white-space: nowrap; color: var(--gold-l);
+  background: linear-gradient(90deg, rgba(34,53,92,.95), rgba(20,32,58,.92)); border: 3px solid var(--gold); border-radius: 14px;
+  box-shadow: 0 0 0 4px rgba(14,22,42,.75), inset 0 0 0 2px rgba(243,220,154,.22), 0 12px 24px rgba(0,0,0,.4);
+  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease; }
+.menu-btn svg { flex: none; color: var(--gold); }
+.menu-btn { --icon-hole: var(--navy-2); }
+.menu-start { --icon-hole: var(--gold); }
+/* เพชรทองที่ปลายซ้าย-ขวาของปุ่ม */
+.menu-btn::before, .menu-btn::after { content: ''; position: absolute; top: 50%; width: 26px; height: 26px; margin-top: -13px; rotate: 45deg;
+  background: var(--navy); border: 3px solid var(--gold); box-shadow: inset 0 0 0 5px var(--navy), inset 0 0 0 12px var(--gold-l); }
+.menu-btn::before { left: -16px; }
+.menu-btn::after { right: -16px; }
+.menu-btn:hover { transform: translateX(10px); filter: brightness(1.12);
+  box-shadow: 0 0 0 4px rgba(14,22,42,.75), inset 0 0 0 2px rgba(243,220,154,.4), 0 0 30px rgba(243,220,154,.35), 0 12px 24px rgba(0,0,0,.4); }
+.menu-btn:active { transform: translateX(10px) translateY(4px); }
+.menu-btn:focus-visible { outline: 6px solid var(--teal); outline-offset: 10px; }
+.menu-start { height: 150px; font-size: 62px; color: var(--navy); text-shadow: 0 1px 0 rgba(255,255,255,.45);
+  background: linear-gradient(180deg, #fff0bf 0%, #f3dc9a 30%, var(--gold) 70%, var(--gold-d) 100%); }
+.menu-start svg { color: var(--navy); }
+.menu-sound { position: absolute; right: 54px; top: 46px; display: flex; gap: 28px; }
+.coin-btn { position: relative; width: 120px; height: 120px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  color: var(--gold-l); border: 3px solid var(--gold); background: radial-gradient(circle at 50% 35%, var(--navy-3), var(--navy) 75%);
+  box-shadow: 0 0 0 4px rgba(14,22,42,.75), 0 10px 20px rgba(0,0,0,.4); transition: transform .18s ease, filter .18s ease; }
+.coin-btn:hover { filter: brightness(1.15); }
+.coin-btn:active { transform: translateY(3px); }
+.coin-btn:focus-visible { outline: 6px solid var(--teal); outline-offset: 8px; }
+.coin-btn.off { color: #8d93a6; border-color: var(--gold-d); }
+.coin-btn.off::after { content: ''; position: absolute; left: 20%; right: 20%; top: 50%; height: 8px; margin-top: -4px; border-radius: 4px;
+  background: var(--gold); box-shadow: 0 0 0 3px var(--navy); transform: rotate(-45deg); }
+.title-credit { color: var(--parch-2); background: rgba(14,22,42,.78); border: 2px solid rgba(217,178,95,.55); box-shadow: none; }
+@media (prefers-reduced-motion: reduce) { .menu-btn, .coin-btn, .btn, .icon-btn { transition: none; } .menu-btn:hover { transform: none; } .menu-mali, .menu-pui { animation: none; } }
+
+/* ---------- หน้าแรกสุด / กรอกชื่อ / วิธีเล่น ---------- */
+.nick-bg { filter: blur(2px) saturate(.95) brightness(.85); }
+.nick-veil { background: radial-gradient(ellipse at 50% 45%, rgba(8,14,32,.35), rgba(8,14,32,.8) 80%); }
+.intro-card { width: 1380px; padding: 56px 96px 60px; gap: 32px; }
+.intro-text { color: var(--parch); font-weight: 500; font-size: 42px; }
+.nick-head { top: 18px; display: flex; flex-direction: column; align-items: center; }
+.nick-welcome { margin-top: 18px; color: var(--parch); font-family: 'Trirong', serif; font-weight: 500; text-shadow: 0 2px 6px rgba(0,0,0,.6); }
+.nick-card { top: 480px; padding: 40px 56px 28px; }
+.nick-label { color: var(--gold-l); font-family: 'Trirong', serif; }
+.nick-input { color: var(--parch); background: rgba(8,14,32,.75); border: 3px solid var(--gold-d); border-radius: 16px; }
+.nick-input::placeholder { color: #7f8aa6; }
+.nick-input:focus { border-color: var(--gold); box-shadow: 0 0 0 6px rgba(217,178,95,.25); }
+.nick-input.invalid { border-color: #e7a3b5; }
+.nick-hint { color: var(--parch-2); }
+.nick-hint.error { color: #f2b8c6; }
+.nick-char { filter: drop-shadow(0 0 20px rgba(255,226,160,.3)) drop-shadow(0 14px 18px rgba(0,0,0,.45)); }
+.howto-title { font-family: 'Trirong', serif; color: var(--gold-l); text-shadow: 0 3px 0 rgba(0,0,0,.45), 0 0 26px rgba(243,220,154,.25); }
+.howto-card { padding: 24px; }
+.howto-card p { color: var(--parch); }
+.howto-pic { background: radial-gradient(circle at 50% 40%, var(--navy-3), var(--navy) 80%); border: 2px solid var(--gold-d); border-radius: 14px; }
+.howto-icon { color: var(--gold); display: flex; }
+.howto-num { background: linear-gradient(180deg, #fbe7ae, var(--gold)); color: var(--navy); border: 3px solid var(--navy); font-family: 'Cinzel', serif; }
+.howto-note { color: var(--gold-l); text-shadow: 0 2px 6px rgba(0,0,0,.6); }
+.loading-screen { background: radial-gradient(ellipse at 50% 40%, var(--navy-3), var(--navy) 55%, #0b1222); }
+.loading-text { color: var(--gold-l); font-family: 'Trirong', serif; }
+.loading-dots span, .loading-dots span:nth-child(2), .loading-dots span:nth-child(3) { background: var(--gold); border-radius: 3px; rotate: 45deg; }
+
+/* ---------- ในเกม: แถบบน / ตัวเลือก / สำรวจ / ตรา / ความทรงจำ / ฉากจบ ---------- */
+.chip { color: var(--gold-l); font-family: 'Trirong', serif; background: linear-gradient(180deg, rgba(34,53,92,.94), rgba(14,22,42,.94));
+  border: 3px solid var(--gold); border-radius: 14px; box-shadow: 0 0 0 3px rgba(14,22,42,.7); }
+.badge-bar { background: linear-gradient(180deg, rgba(34,53,92,.94), rgba(14,22,42,.94)); border: 3px solid var(--gold); border-radius: 14px; box-shadow: 0 0 0 3px rgba(14,22,42,.7); }
+.badge-slot { background: rgba(8,14,32,.8); border-radius: 10px; rotate: 0deg; }
+.badge-slot.got { background: radial-gradient(circle, #4a3c1c, #14203a); box-shadow: 0 0 0 3px var(--gold) inset, 0 0 14px rgba(243,220,154,.45); }
+.choice, .explore-item, .memory-card { color: var(--parch); background: linear-gradient(180deg, rgba(30,46,80,.96), rgba(14,22,42,.97));
+  border: 4px solid var(--gold-d); border-radius: 18px; box-shadow: 0 0 0 4px rgba(14,22,42,.8), 0 14px 30px rgba(0,0,0,.4);
+  transition: border-color .2s ease, filter .2s ease, transform .2s ease; }
+.choice:hover:not(:disabled), .explore-item:hover { border-color: var(--gold); filter: brightness(1.08); }
+.choice-img { border-radius: 10px; border: 2px solid rgba(217,178,95,.5); }
+.choice-label { color: var(--parch); }
+.choice.chosen { border-color: var(--teal); background: linear-gradient(180deg, rgba(36,74,84,.97), rgba(14,30,42,.97)); box-shadow: 0 0 0 4px rgba(14,22,42,.8), 0 0 30px rgba(159,220,210,.45); }
+.choice.tried { border-color: #6f7894; filter: saturate(.8); }
+.choice-badge { width: 78px; height: 78px; border-radius: 14px; font-family: 'Cinzel', serif; color: var(--navy);
+  background: linear-gradient(135deg, #fbe7ae, var(--gold)); border: 3px solid var(--navy); box-shadow: 0 0 0 3px var(--gold), 0 6px 12px rgba(0,0,0,.35); }
+.explore-item.seen { border-color: var(--gold); }
+.explore-label { color: var(--gold-l); font-family: 'Trirong', serif; }
+.explore-check { background: linear-gradient(180deg, #c8f0e9, var(--teal)); color: var(--navy); border: 3px solid var(--navy); box-shadow: 0 0 0 3px var(--teal); }
+.badge-reward { color: var(--parch); background: linear-gradient(180deg, rgba(30,46,80,.96), rgba(14,22,42,.97)); border: 4px solid var(--gold); border-radius: 22px;
+  box-shadow: 0 0 0 4px rgba(14,22,42,.85), 0 0 60px rgba(243,220,154,.3), 0 20px 50px rgba(0,0,0,.45); }
+.badge-reward b { color: var(--gold-l); font-family: 'Trirong', serif; }
+.badge-reward span:last-child { color: var(--parch-2); }
+.memory-title { color: var(--gold-l); font-family: 'Trirong', serif; }
+.memory-summary { color: var(--parch); }
+.memory-pics img { border-radius: 10px; border: 2px solid rgba(217,178,95,.5); }
+.final { background: radial-gradient(ellipse at 50% 45%, rgba(14,22,42,.55), rgba(8,14,32,.85)); }
+.final h1 { font-family: 'Trirong', serif; color: var(--gold-l); text-shadow: 0 3px 0 rgba(0,0,0,.5), 0 0 30px rgba(243,220,154,.3); }
+.final p { font-family: 'Cinzel', serif; color: var(--parch); letter-spacing: .08em; }
+.final b { font-family: 'Cinzel', serif; color: var(--gold); }
+.placeholder { color: var(--gold-l); border-color: var(--gold-d); background: rgba(14,22,42,.7); }
+
+/* ---------- หน้าเลือกตัวละคร (Choose Your Guardian) ---------- */
+.select-screen { position: absolute; inset: 0; overflow: hidden;
+  --emerald: #347C69; --teal-2: #4C9B91; }
+.select-head { position: absolute; top: 34px; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; text-align: center; pointer-events: none; }
+.select-head h1 { margin: 0; font-family: 'Trirong', serif; font-size: 78px; font-weight: 700; line-height: 1.2;
+  background: linear-gradient(180deg, #fff6d6, #f3dc9a 45%, #d6b46b 70%, #a8823a); -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 3px 0 #2a1e0b) drop-shadow(0 8px 16px rgba(0,0,0,.5)); }
+.select-sub { display: flex; align-items: center; gap: 18px; margin: 2px 0 0; font-family: 'Cinzel', serif; font-weight: 800; font-size: 26px; letter-spacing: .22em; color: var(--gold-l); }
+.select-sub i { width: 90px; height: 2px; background: linear-gradient(90deg, transparent, var(--gold)); }
+.select-sub i:last-child { background: linear-gradient(90deg, var(--gold), transparent); }
+.select-lead { margin: 10px 0 0; font-size: 32px; color: var(--parch); text-shadow: 0 2px 6px rgba(0,0,0,.7); }
+.select-tools { position: absolute; top: 40px; right: 48px; display: flex; gap: 22px; z-index: 2; }
+
+.select-left { position: absolute; left: 96px; top: 282px; width: 700px; height: 560px; padding: 40px 44px 32px; display: flex; flex-direction: column; gap: 26px; }
+.nick-form .nick-label { display: flex; align-items: center; gap: 14px; margin: 0 0 18px; font-size: 38px; }
+.nick-form .nick-label svg { color: var(--gold); flex: none; }
+.nick-form .nick-input { height: 112px; font-size: 46px; text-align: left; padding: 0 30px; }
+.nick-form .nick-hint { font-size: 27px; margin-top: 12px; }
+.nick-form .nick-hint.error { font-size: 30px; }
+.select-preview { flex: 1; display: flex; align-items: center; gap: 26px; padding: 18px 22px; border-radius: 16px;
+  background: linear-gradient(180deg, rgba(8,14,32,.55), rgba(8,14,32,.25)); border: 2px solid rgba(214,180,107,.4); transition: border-color .4s ease, box-shadow .4s ease; }
+.select-preview.has-hero { border-color: var(--gold); box-shadow: inset 0 0 40px rgba(243,220,154,.12); }
+.preview-art { position: relative; flex: none; width: 230px; height: 190px; }
+.preview-hero, .preview-empty { position: absolute; left: 0; top: 10px; width: 170px; height: 170px; border-radius: 50%; border: 4px solid var(--gold);
+  background: radial-gradient(circle at 50% 40%, var(--navy-3), var(--navy) 75%); object-fit: cover; object-position: top; animation: fade-in .5s ease-out; }
+.preview-empty { display: grid; place-items: center; font-family: 'Cinzel', serif; font-size: 80px; color: var(--gold-d); }
+.preview-pui { position: absolute; right: -6px; bottom: -6px; height: 130px; filter: drop-shadow(0 4px 6px rgba(0,0,0,.45)); }
+.preview-text { margin: 0; font-family: 'Trirong', serif; font-size: 44px; font-weight: 700; color: var(--gold-l); line-height: 1.3; min-width: 0; overflow-wrap: anywhere; }
+.preview-text b { color: #fff3cf; }
+.preview-text small { display: block; margin-top: 8px; font-family: 'Sarabun', sans-serif; font-size: 27px; font-weight: 500; color: var(--parch-2); }
+
+.select-cards { position: absolute; left: 860px; right: 96px; top: 282px; height: 560px; display: flex; gap: 48px; }
+.hero-card { position: relative; flex: 1; display: flex; flex-direction: column; align-items: stretch; padding: 0; overflow: visible; text-align: center; color: var(--parch);
+  background: linear-gradient(180deg, rgba(36,54,83,.82), rgba(23,36,61,.9)); border: 3px solid rgba(214,180,107,.55); border-radius: 20px;
+  box-shadow: 0 0 0 4px rgba(14,22,42,.7), 0 18px 36px rgba(0,0,0,.4); transition: border-color .35s ease, box-shadow .35s ease, filter .35s ease, transform .35s ease; }
+.hero-card:hover { border-color: var(--gold); filter: brightness(1.06); }
+.hero-card:focus-visible { outline: 6px solid var(--teal); outline-offset: 8px; }
+.hero-card.on { border: 4px solid #d6b46b; transform: translateY(-6px);
+  box-shadow: 0 0 0 4px rgba(14,22,42,.7), 0 0 50px rgba(243,220,154,.45), inset 0 0 50px rgba(243,220,154,.12), 0 18px 36px rgba(0,0,0,.4); }
+.hero-card.dim { filter: saturate(.75) brightness(.82); }
+.hero-card.dim:hover { filter: saturate(.9) brightness(.95); }
+.hero-tag { position: absolute; top: 0; left: 50%; translate: -50% -50%; z-index: 2; padding: 6px 22px; white-space: nowrap; font-family: 'Cinzel', serif; font-weight: 800; font-size: 20px; letter-spacing: .14em;
+  color: var(--gold-l); background: linear-gradient(180deg, var(--navy-2), var(--navy)); border: 2px solid var(--gold); border-radius: 8px; }
+.hero-card.on .hero-tag { color: var(--navy); background: linear-gradient(180deg, #fbe7ae, #d6b46b); }
+.hero-art { position: relative; flex: 1; min-height: 0; overflow: hidden; border-radius: 17px 17px 0 0;
+  background: radial-gradient(ellipse at 50% 70%, rgba(243,220,154,.22), transparent 60%), linear-gradient(180deg, rgba(76,155,145,.18), transparent 70%); }
+.hero-art img { position: absolute; left: 50%; top: 24px; height: 640px; translate: -50% 0; filter: drop-shadow(0 10px 14px rgba(0,0,0,.45)); transform-origin: 50% 30%; }
+.hero-card.on .hero-art img { animation: hero-idle 4.5s ease-in-out infinite; filter: drop-shadow(0 0 18px rgba(255,226,160,.45)) drop-shadow(0 10px 14px rgba(0,0,0,.45)); }
+@keyframes hero-idle { 0%, 100% { translate: -50% 0; } 50% { translate: -50% -8px; } }
+.hero-info { display: flex; flex-direction: column; gap: 4px; padding: 14px 20px 22px; border-top: 2px solid rgba(214,180,107,.45);
+  background: linear-gradient(180deg, rgba(14,22,42,.6), rgba(14,22,42,.92)); border-radius: 0 0 17px 17px; }
+.hero-name { font-family: 'Trirong', serif; font-size: 48px; color: var(--gold-l); line-height: 1.2; }
+.hero-desc { font-size: 25px; line-height: 1.35; color: var(--parch-2); min-height: 68px; }
+.hero-picked { position: absolute; left: 50%; bottom: 0; translate: -50% 50%; z-index: 2; display: flex; align-items: center; gap: 10px; white-space: nowrap;
+  padding: 8px 26px; font-size: 26px; font-weight: 700; color: var(--navy); background: linear-gradient(180deg, #fbe7ae, #d6b46b); border: 3px solid var(--navy);
+  border-radius: 30px; box-shadow: 0 0 0 3px #d6b46b, 0 6px 14px rgba(0,0,0,.4); animation: fade-in .4s ease-out; }
+
+.select-actions { position: absolute; left: 96px; right: 96px; bottom: 44px; display: flex; align-items: center; justify-content: space-between; gap: 30px; }
+.btn-back-big { min-width: 330px; color: var(--gold-l); background: linear-gradient(180deg, #2c4166, #243653); }
+.btn-emerald { min-width: 520px; color: #fff9ed; text-shadow: 0 2px 0 rgba(0,0,0,.25); font-size: 54px;
+  background: linear-gradient(180deg, #5fb3a6 0%, #4C9B91 35%, #347C69 100%); border-color: #d6b46b; }
+.btn-emerald svg { color: #f3dc9a; filter: drop-shadow(0 2px 0 rgba(0,0,0,.3)); }
+.btn-emerald:not(:disabled):hover { box-shadow: 0 0 0 3px rgba(14,22,42,.8), 0 0 34px rgba(76,155,145,.55), 0 8px 0 rgba(0,0,0,.35); }
+.btn-emerald:disabled { opacity: 1; filter: grayscale(.7) brightness(.7); }
+.select-status { flex: 1; margin: 0; text-align: center; font-size: 30px; color: var(--gold-l); text-shadow: 0 2px 6px rgba(0,0,0,.7); }
+@media (prefers-reduced-motion: reduce) { .hero-card, .select-preview { transition: none; } .hero-card.on { transform: none; } .hero-card.on .hero-art img, .preview-hero, .hero-picked { animation: none; } }
+.hero-card.on .hero-info { padding-bottom: 44px; }
+/* กรอบเว้นรูปตัวเลือก (รอภาพชุดใหม่) */
+.placeholder small { font-family: 'Sarabun', sans-serif; font-weight: 600; letter-spacing: .3px; }
+.placeholder svg { color: var(--gold); opacity: .8; }
+.choice-ph { height: auto; border: 3px dashed var(--gold-d) !important; border-radius: 10px; background: rgba(8,14,32,.6); gap: 10px; }
+.choice-ph small { font-size: 26px; color: var(--gold-l); }
+.memory-ph { aspect-ratio: 1; height: auto; border-width: 2px; border-radius: 10px; gap: 4px; }
+.memory-ph svg { width: 40px; height: 40px; }
+.memory-ph small { font-size: 18px; }
+.choice-ph { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.choice-ph svg { width: 96px; height: 96px; }

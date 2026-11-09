@@ -2,15 +2,19 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Stage } from './game/Stage'
 import { RotateGate, enterLandscapeFullscreen } from './game/RotateGate'
 import { Placeholder } from './game/Placeholder'
+import { choiceArt, choiceArtFromPath } from './shared/choiceArt'
 import { SCENES, CHARACTER_NAMES } from './shared/scenes'
 import { areaOf, buildSteps, story, type Step } from './game/storyFlow'
 import type { Line, Mission } from './shared/story.types'
 import { bodyImage, bustImage, faceImage } from './shared/characters'
-import { IntroScreen, HowToScreen, LoadingScreen, NicknameScreen, SoundControls, SoundPanel, TitleScreen } from './game/StartScreens'
+import { CharacterSelectScreen, IntroScreen, HowToScreen, LoadingScreen, SoundControls, SoundPanel, TitleScreen } from './game/StartScreens'
+import { DEFAULT_HERO, HEROES, heroCharId, personalize, type CharacterType, type HeroDef } from './shared/hero'
 import { getSound, playSfx, unlockAudio } from './game/audio'
-import { createSession, endSession, startTracking, track, withNickname, type PlayerSession } from './game/player'
+import { BulbIcon, HelpHandsIcon, MusicIcon, PauseIcon } from './game/Icons'
+import { SPEED_LABEL, SPEED_MS, graphemes, setTextPrefs, useTextPrefs, type TextSpeed } from './game/textPrefs'
+import { createSession, endSession, startTracking, track, type PlayerSession } from './game/player'
 
-type Screen = 'intro' | 'title' | 'nickname' | 'howto' | 'loading' | 'game'
+type Screen = 'intro' | 'title' | 'select' | 'howto' | 'loading' | 'game'
 
 export default function App() {
   const steps = useMemo(buildSteps, [])
@@ -19,15 +23,16 @@ export default function App() {
   const [paused, setPaused] = useState(false)
   const [session, setSession] = useState<PlayerSession | null>(null)
   const [draftName, setDraftName] = useState('')
+  const [draftHero, setDraftHero] = useState<CharacterType | null>(null)
 
   const openNickname = async () => {
     unlockAudio()
     await enterLandscapeFullscreen()
-    setScreen('nickname')
+    setScreen('select')
   }
 
-  const begin = (nickname: string) => {
-    const s = createSession(nickname)
+  const begin = (nickname: string, hero: CharacterType) => {
+    const s = createSession(nickname, hero)
     setSession(s)
     startTracking(s, { musicOn: getSound().musicOn, voiceOn: false }) // เกมไม่มีเสียงพากย์
     setIdx(0)
@@ -61,20 +66,23 @@ export default function App() {
       <Stage>
         {screen === 'intro' && <IntroScreen onNext={() => { unlockAudio(); setScreen('title') }} />}
         {screen === 'title' && <TitleScreen onStart={openNickname} />}
-        {screen === 'nickname' && (
-          <NicknameScreen name={draftName} setName={setDraftName}
+        {screen === 'select' && (
+          <CharacterSelectScreen name={draftName} setName={setDraftName} hero={draftHero} setHero={setDraftHero}
             onStart={begin} onHowTo={() => setScreen('howto')} onBack={() => setScreen('title')} />
         )}
-        {screen === 'howto' && <HowToScreen onBack={() => setScreen('nickname')} />}
+        {screen === 'howto' && <HowToScreen onBack={() => setScreen('select')} />}
         {screen === 'loading' && <LoadingScreen nickname={session?.nickname ?? ''} onDone={toGame} />}
         {screen === 'game' && (
           <StepView
             key={idx}
             step={steps[idx]}
             nickname={session?.nickname ?? ''}
+            hero={session ? HEROES[session.characterType] : DEFAULT_HERO}
+            prevSceneId={idx > 0 ? steps[idx - 1].sceneId : null}
             badges={steps.slice(0, idx + 1).flatMap(s => s.kind === 'badge' ? [s.area.id] : [])}
             prevSpeaker={idx > 0 && steps[idx - 1].kind === 'line' ? (steps[idx - 1] as { line: Line }).line.speaker : null}
             canBack={idx > 0}
+            paused={paused}
             onNext={next}
             onPrev={() => setIdx(Math.max(idx - 1, 0))}
             onPause={() => { setPaused(true); track({ type: 'pause' }) }}
@@ -82,9 +90,10 @@ export default function App() {
         )}
         {paused && (
           <div className="overlay">
-            <div className="panel">
+            <div className="panel rpg-frame">
               <h2>พักก่อนนะ</h2>
               <SoundControls />
+              <TextControls />
               <button className="btn btn-primary" onClick={() => { setPaused(false); track({ type: 'resume' }) }}>เล่นต่อ</button>
               <button className="btn" onClick={goHome}>กลับหน้าแรก</button>
             </div>
@@ -95,11 +104,14 @@ export default function App() {
   )
 }
 
-interface StepProps { step: Step; nickname: string; badges: string[]; prevSpeaker: string | null; canBack: boolean; onNext: () => void; onPrev: () => void; onPause: () => void }
+interface StepProps { step: Step; nickname: string; hero: HeroDef; badges: string[]; prevSceneId: string | null; prevSpeaker: string | null; canBack: boolean; paused: boolean; onNext: () => void; onPrev: () => void; onPause: () => void }
 
-function StepView({ step, nickname, badges, prevSpeaker, canBack, onNext, onPrev, onPause }: StepProps) {
+function StepView({ step, nickname, hero, badges, prevSceneId, prevSpeaker, canBack, paused, onNext, onPrev, onPause }: StepProps) {
   const scene = SCENES.find(s => s.id === step.sceneId) ?? SCENES[0]
   const mission = step.kind === 'mission' ? step.mission : null
+  // เปลี่ยนฉาก → ค่อย ๆ จางเข้า · เข้าฉากกลางคืนจากฉากกลางวัน → ค่อย ๆ มืดลง (ไม่มีความสว่างเปลี่ยนฉับพลัน)
+  const prevScene = SCENES.find(s => s.id === prevSceneId)
+  const bgAnim = scene.night && !prevScene?.night ? ' dusk' : prevScene?.bg !== scene.bg ? ' scene-in' : ''
   // ภารกิจที่เกี่ยวข้องกับขั้นนี้ (ใช้แสดงชื่อบนแถบด้านบน)
   const chipMission = step.kind === 'mission' || step.kind === 'explore' ? step.mission : null
   // สำรวจฉาก: สิ่งของที่แตะดูแล้ว (ไม่บันทึกข้อมูล ไม่นับคะแนน)
@@ -146,9 +158,39 @@ function StepView({ step, nickname, badges, prevSpeaker, canBack, onNext, onPrev
   else line = { speaker: 'narrator', text: story.ending.finalMessage }
 
   const hasPanel = step.kind !== 'line'
+  // ภาพครึ่งตัวของผู้พูด — ไม่แสดงตอนมีแผง (ตัวเลือก/สำรวจ) เพื่อไม่บัง
+  const bust = line.speaker !== 'narrator' && !hasPanel ? bustImage(heroCharId(line.speaker, hero), line.emotion) : null
   const charsHidden = line.speaker !== 'narrator' || step.kind === 'memories' || step.kind === 'badge'
   const prevHidden = prevSpeaker !== null && prevSpeaker !== 'narrator'
-  const speakerName = line.speaker === 'narrator' ? '' : CHARACTER_NAMES[line.speaker]
+  const speakerName = line.speaker === 'narrator' ? '' : CHARACTER_NAMES[heroCharId(line.speaker, hero)]
+
+  // ข้อความค่อย ๆ ขึ้นทีละตัว (ปรับความเร็วได้ / แตะกล่องเพื่อแสดงทั้งหมด) — ไม่มีการกะพริบ
+  const prefs = useTextPrefs()
+  const shownText = personalize(line.text, nickname, hero, line.speaker)
+  const chars = useMemo(() => graphemes(shownText), [shownText])
+  const [replay, setReplay] = useState(0)
+  const [count, setCount] = useState(() => (SPEED_MS[prefs.speed] ? 0 : chars.length))
+  const speedRef = useRef(prefs.speed)
+  speedRef.current = prefs.speed
+  useEffect(() => { setCount(SPEED_MS[speedRef.current] ? 0 : chars.length) }, [chars, replay])
+  useEffect(() => {
+    if (count >= chars.length) return
+    const ms = SPEED_MS[prefs.speed]
+    if (!ms) { setCount(chars.length); return }
+    const t = setTimeout(() => setCount(c => c + 1), ms)
+    return () => clearTimeout(t)
+  }, [count, chars, prefs.speed])
+  const typing = count < chars.length
+  const finishTyping = () => setCount(chars.length)
+
+  // เล่นอัตโนมัติ (ผู้เล่นเปิดเอง): เฉพาะบทพูดธรรมดา ไม่เร่งตอนต้องตัดสินใจ หยุดเมื่อพักเกม
+  const nextRef = useRef(onNext)
+  nextRef.current = onNext
+  useEffect(() => {
+    if (!prefs.auto || paused || soundOpen || typing || step.kind !== 'line') return
+    const t = setTimeout(() => nextRef.current(), 1800 + chars.length * 45)
+    return () => clearTimeout(t)
+  }, [prefs.auto, paused, soundOpen, typing, step.kind, chars.length])
   const showHint = () => {
     if (!mission) return
     const level = Math.min(hintLevel + 1, mission.hints.length)
@@ -159,12 +201,15 @@ function StepView({ step, nickname, badges, prevSpeaker, canBack, onNext, onPrev
   return (
     <div className="scene">
       {scene.bg
-        ? <img className="bg" src={scene.bg} alt={scene.title} draggable={false} />
+        ? <img className={`bg${bgAnim === ' scene-in' ? bgAnim : ''}`} src={scene.bg} alt={personalize(scene.title, nickname, hero)} draggable={false} />
         : <Placeholder label={`พื้นหลัง: ${scene.title}`} className="bg" />}
+
+      {/* โทนกลางคืน: ชั้นสีน้ำเงินเข้มทับภาพ ค่อย ๆ จางเข้าเมื่อตะวันตก */}
+      {scene.night && <div className={`night-tint${bgAnim === ' dusk' ? ' dusk' : ''}`} aria-hidden />}
 
       <div className="hud-top">
         <div className="hud-left">
-          <span className="chip">{chipMission ? `${areaOf(chipMission)?.name} · ${chipMission.title}` : `${scene.location} · ${scene.title}`}</span>
+          <span className="chip">{personalize(chipMission ? `${areaOf(chipMission)?.name} · ${chipMission.title}` : `${scene.location} · ${scene.title}`, nickname, hero)}</span>
           {/* ตราผู้พิทักษ์ที่ได้แล้ว (แผนที่ความคืบหน้า) */}
           <span className="badge-bar" aria-label={`ตราผู้พิทักษ์ ${badges.length} จาก 4`}>
             {story.areas.map(a => (
@@ -173,13 +218,13 @@ function StepView({ step, nickname, badges, prevSpeaker, canBack, onNext, onPrev
           </span>
         </div>
         <div className="hud-btns">
-          <button className="icon-btn" aria-label="ตั้งค่าเสียง" onClick={() => setSoundOpen(true)}>🎵</button>
-          {step.kind === 'mission' && <button className="icon-btn" aria-label="คำใบ้" onClick={showHint}>💡</button>}
+          <button className="icon-btn" aria-label="ตั้งค่าเสียง" onClick={() => setSoundOpen(true)}><MusicIcon size={60} /></button>
+          {step.kind === 'mission' && <button className="icon-btn" aria-label="คำใบ้" onClick={showHint}><BulbIcon size={60} /></button>}
           {step.kind === 'mission' && (
             <button className={`icon-btn assist-btn${assisted ? ' on' : ''}`} onClick={markAssisted} aria-pressed={assisted}
-              aria-label="ผู้ดูแลช่วย (กดเมื่อผู้ดูแลช่วยอธิบายหรือช่วยเลือก)" title="ผู้ดูแลช่วย">🤝</button>
+              aria-label="ผู้ดูแลช่วย (กดเมื่อผู้ดูแลช่วยอธิบายหรือช่วยเลือก)" title="ผู้ดูแลช่วย"><HelpHandsIcon size={62} /></button>
           )}
-          <button className="icon-btn" aria-label="หยุดพัก" onClick={onPause}>⏸</button>
+          <button className="icon-btn" aria-label="หยุดพัก" onClick={onPause}><PauseIcon size={60} /></button>
         </div>
       </div>
 
@@ -188,23 +233,20 @@ function StepView({ step, nickname, badges, prevSpeaker, canBack, onNext, onPrev
       <div className={`characters${charsHidden ? ' hidden' : ''}${charsHidden !== prevHidden ? (charsHidden ? ' fade-out' : ' fade-in') : ''}`}>
         {scene.characters.map(c => (
           <div key={c} className={`slot slot-${c}${line.speaker === c ? ' speaking' : ''}${line.speaker !== 'narrator' && line.speaker !== c ? ' listening' : ''}`}>
-            <img src={bodyImage(c)} alt={CHARACTER_NAMES[c]} draggable={false} className={`char char-${c}`} />
+            <img src={bodyImage(heroCharId(c, hero))} alt={CHARACTER_NAMES[heroCharId(c, hero)]} draggable={false} className={`char char-${c}`} />
           </div>
         ))}
       </div>
 
       {/* ภาพครึ่งตัวของผู้พูด แสดงข้างกล่องบทสนทนา */}
       {/* ไม่แสดงตอนมีตัวเลือก เพื่อไม่ให้บังรูปตัวเลือก — ใช้รูปหน้าเล็กในกล่องแทน */}
-      {line.speaker !== 'narrator' && !hasPanel && (() => {
-        const b = bustImage(line.speaker, line.emotion)
-        return (
-          <div className={`bust${line.speaker !== prevSpeaker ? ' enter' : ''}`} aria-hidden>
-            <img key={b.key} src={b.src} alt="" draggable={false} style={{ width: b.width, top: b.top }} />
-          </div>
-        )
-      })()}
+      {bust && (
+        <div className={`bust${line.speaker !== prevSpeaker ? ' enter' : ''}`} aria-hidden>
+          <img key={bust.key} src={bust.src} alt="" draggable={false} style={{ width: bust.width, top: bust.top }} />
+        </div>
+      )}
 
-      {step.kind === 'mission' && <ChoiceGrid mission={step.mission} picked={picked} onPick={pick} />}
+      {step.kind === 'mission' && <ChoiceGrid mission={step.mission} picked={picked} onPick={pick} label={s => personalize(s, nickname, hero)} hero={hero} />}
 
 
       {step.kind === 'explore' && (
@@ -213,7 +255,7 @@ function StepView({ step, nickname, badges, prevSpeaker, canBack, onNext, onPrev
             <button key={it.label} className={`explore-item${explored.includes(i) ? ' seen' : ''}`}
               onClick={() => { setExploreText(it.text); setExplored(e => e.includes(i) ? e : [...e, i]) }}>
               <span className="explore-icon" aria-hidden>{it.icon}</span>
-              <span className="explore-label">{it.label}</span>
+              <span className="explore-label">{personalize(it.label, nickname, hero)}</span>
               {explored.includes(i) && <span className="explore-check" aria-label="ดูแล้ว">✓</span>}
             </button>
           ))}
@@ -233,10 +275,15 @@ function StepView({ step, nickname, badges, prevSpeaker, canBack, onNext, onPrev
           {story.ending.memories.map(m => (
             <div key={m.areaId} className="memory-card">
               <div className="memory-pics">
-                {m.images.map(src => <img key={src} src={src} alt="" draggable={false} />)}
+                {m.images.map(src => {
+                  const art = choiceArtFromPath(src, hero)
+                  return art
+                    ? <img key={src} src={art} alt="" draggable={false} />
+                    : <Placeholder key={src} className="memory-ph" label="รอภาพ" />
+                })}
               </div>
-              <b className="memory-title">{m.title}</b>
-              <span className="memory-summary">{m.summary}</span>
+              <b className="memory-title">{personalize(m.title, nickname, hero)}</b>
+              <span className="memory-summary">{personalize(m.summary, nickname, hero)}</span>
             </div>
           ))}
         </div>
@@ -245,24 +292,40 @@ function StepView({ step, nickname, badges, prevSpeaker, canBack, onNext, onPrev
       {step.kind === 'final' && (
         <div className="final">
           <h1>{story.ending.finalMessage}</h1>
-          <p>Little Steps: My Health Journey</p>
+          <p>Little Steps: The Guardian's Journey</p>
           <b>THE END</b>
         </div>
       )}
 
       {soundOpen && <SoundPanel onClose={() => setSoundOpen(false)} />}
 
-      <div className="dialogue">
-        {hasPanel && line.speaker !== 'narrator' && (
-          <img className="portrait" src={faceImage(line.speaker, line.emotion)} alt="" draggable={false} />
+      <div className={`dialogue${speakerName ? '' : ' is-narration'}`}>
+        {speakerName && <b className={`name name-${line.speaker}`}>{speakerName}</b>}
+        <div className="dlg-tools">
+          {prefs.speed !== 'instant' && (
+            <button className="dlg-tool" onClick={() => setReplay(r => r + 1)} aria-label="อ่านข้อความนี้อีกครั้ง">🔁 อ่านซ้ำ</button>
+          )}
+          <button className={`dlg-tool${prefs.auto ? ' on' : ''}`} aria-pressed={prefs.auto}
+            onClick={() => setTextPrefs({ auto: !prefs.auto })} aria-label="เล่นบทพูดต่ออัตโนมัติ">
+            {prefs.auto ? '▶▶ อัตโนมัติ' : '▶▶ อัตโนมัติ: ปิด'}
+          </button>
+        </div>
+        {line.speaker !== 'narrator' && (
+          <div className="portrait-frame">
+            <img className="portrait" src={faceImage(heroCharId(line.speaker, hero), line.emotion)} alt="" draggable={false} />
+          </div>
         )}
-        <div className={`dialogue-text${speakerName ? '' : ' narration'}`}>
-          {speakerName && <b className={`name name-${line.speaker}`}>{speakerName}</b>}
-          <p>{withNickname(line.text, nickname)}</p>
+        <div className="dialogue-text" onClick={typing ? finishTyping : undefined}>
+          <p>
+            <span className="sr-only">{shownText}</span>
+            <span aria-hidden>{chars.slice(0, count).join('')}</span>
+            <span className="type-rest" aria-hidden>{chars.slice(count).join('')}</span>
+            {!typing && canContinue && step.kind !== 'final' && <span className="next-ind" aria-hidden>▼</span>}
+          </p>
         </div>
         <div className="nav">
-          <button className="btn" onClick={onPrev} disabled={!canBack} aria-label="ย้อนกลับ">◀</button>
-          <button className="btn btn-primary" onClick={onNext} disabled={!canContinue}>
+          <button className="btn btn-back" onClick={onPrev} disabled={!canBack} aria-label="ย้อนกลับ">◀</button>
+          <button className="btn btn-primary" onClick={typing ? finishTyping : onNext} disabled={!canContinue && !typing}>
             {step.kind === 'final' ? 'หน้าแรก' : 'ต่อไป ▶'}
           </button>
         </div>
@@ -271,19 +334,38 @@ function StepView({ step, nickname, badges, prevSpeaker, canBack, onNext, onPrev
   )
 }
 
-function ChoiceGrid({ mission, picked, onPick }: { mission: Mission; picked: string | null; onPick: (id: string) => void }) {
+function ChoiceGrid({ mission, picked, onPick, label, hero }: { mission: Mission; picked: string | null; onPick: (id: string) => void; label: (s: string) => string; hero: HeroDef }) {
   const solved = mission.choices.some(c => c.id === picked && c.isCorrect)
+  const art = (choiceId: string) => choiceArt(mission.missionId, choiceId, hero)
   return (
     <div className="choices choices-2">
       {mission.choices.map(c => (
         <button key={c.id} disabled={solved && !c.isCorrect}
           className={`choice${picked === c.id ? (c.isCorrect ? ' chosen' : ' tried') : ''}`}
-          onClick={() => onPick(c.id)} aria-label={`ตัวเลือก ${c.id}: ${c.text}`}>
+          onClick={() => onPick(c.id)} aria-label={`ตัวเลือก ${c.id}: ${label(c.text)}`}>
           <span className="choice-badge">{c.id}</span>
-          <img className="choice-img" src={c.image} alt="" draggable={false} />
-          <span className="choice-label">{c.text}</span>
+          {art(c.id)
+            ? <img className="choice-img" src={art(c.id)!} alt="" draggable={false} />
+            : <Placeholder className="choice-img choice-ph" label={`รอภาพประกอบ ${mission.missionId} · ${c.id}`} />}
+          <span className="choice-label">{label(c.text)}</span>
         </button>
       ))}
+    </div>
+  )
+}
+
+/** ตั้งค่าความเร็วข้อความ + เล่นอัตโนมัติ (อยู่ในหน้าพัก) */
+function TextControls() {
+  const prefs = useTextPrefs()
+  return (
+    <div className="text-controls">
+      <span className="text-controls-label">ความเร็วตัวอักษร</span>
+      <div className="seg" role="group" aria-label="ความเร็วตัวอักษร">
+        {(Object.keys(SPEED_LABEL) as TextSpeed[]).map(s => (
+          <button key={s} className={`seg-btn${prefs.speed === s ? ' on' : ''}`} aria-pressed={prefs.speed === s}
+            onClick={() => setTextPrefs({ speed: s })}>{SPEED_LABEL[s]}</button>
+        ))}
+      </div>
     </div>
   )
 }
