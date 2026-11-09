@@ -11,7 +11,7 @@ export interface SoundSettings {
 
 const KEY = 'littlesteps.sound'
 // ค่าเริ่มต้นเบา ๆ ไม่ดังเกินไปสำหรับเด็ก
-const DEFAULTS: SoundSettings = { musicOn: true, musicVolume: 0.25, sfxOn: true, sfxVolume: 0.6 }
+const DEFAULTS: SoundSettings = { musicOn: true, musicVolume: 0.15, sfxOn: true, sfxVolume: 0.6 }
 
 function load(): SoundSettings {
   try {
@@ -24,7 +24,9 @@ function load(): SoundSettings {
 let settings = load()
 const listeners = new Set<() => void>()
 
-const bgm = typeof Audio !== 'undefined' ? new Audio('/assets/audio/bgm.mp3') : null
+// เพลงแนวแฟนตาซี (Savfk) — ปรับให้ดังสม่ำเสมอ ไม่มีช่วงดังขึ้นกะทันหัน และเฟดเข้า/ออกตอนวนซ้ำ
+// ต้นฉบับอยู่ที่ background_music/ · เพลงเดิมยังอยู่ที่ /assets/audio/bgm.mp3
+const bgm = typeof Audio !== 'undefined' ? new Audio('/assets/audio/bgm-fantasy.mp3') : null
 if (bgm) { bgm.loop = true; bgm.preload = 'auto' }
 
 const SFX = { correct: '/assets/audio/correct.mp3', wrong: '/assets/audio/wrong.mp3' } as const
@@ -34,11 +36,23 @@ let current: HTMLAudioElement | null = null
 
 let unlocked = false // เบราว์เซอร์ให้เล่นเสียงได้หลังผู้ใช้แตะหน้าจอครั้งแรก
 
+let fadeTimer: ReturnType<typeof setInterval> | null = null
+
 function applyMusic() {
   if (!bgm) return
-  bgm.volume = settings.musicVolume
-  if (settings.musicOn && settings.musicVolume > 0 && unlocked) bgm.play().catch(() => {})
-  else bgm.pause()
+  if (fadeTimer) { clearInterval(fadeTimer); fadeTimer = null }
+  if (settings.musicOn && settings.musicVolume > 0 && unlocked) {
+    if (bgm.paused) {
+      // เริ่มเล่น: ค่อย ๆ เพิ่มเสียงจาก 0 ใน ~2 วินาที ไม่ให้ดังขึ้นมาทันที
+      bgm.volume = 0
+      bgm.play().catch(() => {})
+      const target = settings.musicVolume
+      fadeTimer = setInterval(() => {
+        bgm.volume = Math.min(target, bgm.volume + target / 20)
+        if (bgm.volume >= target && fadeTimer) { clearInterval(fadeTimer); fadeTimer = null }
+      }, 100)
+    } else bgm.volume = settings.musicVolume
+  } else bgm.pause()
 }
 
 export function setSound(patch: Partial<SoundSettings>) {
