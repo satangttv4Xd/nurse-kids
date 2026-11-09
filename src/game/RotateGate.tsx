@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react'
+import { TabletIcon } from './Icons'
 
 // บังคับแนวนอน: ถ้าจอเป็นแนวตั้ง แสดงหน้าขอให้หมุนเครื่อง
 const isPortrait = () => window.matchMedia('(orientation: portrait)').matches
@@ -21,7 +22,7 @@ export function RotateGate({ children }: { children: ReactNode }) {
       {children}
       {portrait && (
         <div className="rotate-gate" role="alert">
-          <div className="rotate-phone" aria-hidden>📱</div>
+          <div className="rotate-phone" aria-hidden><TabletIcon size={88} /></div>
           <p>กรุณาหมุนเครื่องเป็นแนวนอน</p>
           <small>เกมนี้เล่นในแนวนอน</small>
         </div>

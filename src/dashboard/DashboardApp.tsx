@@ -55,7 +55,7 @@ function Login({ onLogin }: { onLogin: (u: User) => void }) {
           <div className="grid h-11 w-11 place-items-center rounded-xl bg-brand-100 text-brand-700"><Lock className="h-5 w-5" /></div>
           <div>
             <h1 className="text-lg font-semibold">Research Dashboard</h1>
-            <p className="text-sm text-muted">Little Steps: My Health Journey</p>
+            <p className="text-sm text-muted">Little Steps: The Guardian's Journey</p>
           </div>
         </div>
         <label className="mb-1 block text-sm font-medium" htmlFor="u">ชื่อผู้ใช้</label>

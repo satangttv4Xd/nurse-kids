@@ -18,6 +18,20 @@ export const BookIcon = ({ size = 48 }: P) => svg(size, <>
   <path d="M40 10.5c-5.5-1.5-11-.5-16 3v26c5-3.5 10.5-4.5 16-3z" fill="currentColor" />
 </>)
 
+export const ReplayIcon = ({ size = 48 }: P) => svg(size, <>
+  <path d="M11 24a13 13 0 1 0 4-9.4" />
+  <path d="M10 8v8h8" />
+</>)
+
+export const AutoPlayIcon = ({ size = 48 }: P) => svg(size, <>
+  <path d="M7 13.5v21c0 1.6 1.8 2.5 3.1 1.6L24 26v8.5c0 1.6 1.8 2.5 3.1 1.6l14-10.5c1-.8 1-2.4 0-3.2l-14-10.5C25.8 10.9 24 11.9 24 13.5V22l-13.9-10.1C8.8 11 7 11.9 7 13.5z" fill="currentColor" strokeWidth={2} />
+</>)
+
+export const TabletIcon = ({ size = 48 }: P) => svg(size, <>
+  <rect x="12" y="5" width="24" height="38" rx="4" />
+  <path d="M21 37h6" />
+</>)
+
 export const MusicIcon = ({ size = 48 }: P) => svg(size, <>
   <path d="M19 34V12l18-4v22" />
   <circle cx="14" cy="34" r="5" fill="currentColor" />

@@ -10,7 +10,8 @@ import { bodyImage, bustImage, faceImage } from './shared/characters'
 import { CharacterSelectScreen, IntroScreen, HowToScreen, LoadingScreen, SoundControls, SoundPanel, TitleScreen } from './game/StartScreens'
 import { DEFAULT_HERO, HEROES, heroCharId, personalize, type CharacterType, type HeroDef } from './shared/hero'
 import { getSound, playSfx, unlockAudio } from './game/audio'
-import { BulbIcon, HelpHandsIcon, MusicIcon, PauseIcon } from './game/Icons'
+import { AutoPlayIcon, BulbIcon, CheckIcon, MusicIcon, PauseIcon, ReplayIcon } from './game/Icons'
+import { StoryIcon, stripLeadingEmoji } from './game/StoryIcons'
 import { SPEED_LABEL, SPEED_MS, graphemes, setTextPrefs, useTextPrefs, type TextSpeed } from './game/textPrefs'
 import { createSession, endSession, startTracking, track, type PlayerSession } from './game/player'
 
@@ -120,12 +121,6 @@ function StepView({ step, nickname, hero, badges, prevSceneId, prevSpeaker, canB
   const [hintLevel, setHintLevel] = useState(0)
   const [picked, setPicked] = useState<string | null>(null)
   const attempts = useRef(0)
-  const [assisted, setAssisted] = useState(false)
-  const markAssisted = () => {
-    if (!mission || assisted) return
-    setAssisted(true)
-    track({ type: 'assist', missionId: mission.missionId })
-  }
   const shownAt = useRef(Date.now())
   const [soundOpen, setSoundOpen] = useState(false)
 
@@ -134,28 +129,33 @@ function StepView({ step, nickname, hero, badges, prevSceneId, prevSpeaker, canB
     const c = mission.choices.find(x => x.id === id)!
     attempts.current += 1
     track({ type: 'answer', missionId: mission.missionId, choiceId: c.id, isCorrect: c.isCorrect, attempt: attempts.current,
-      responseMs: Date.now() - shownAt.current, hintsUsed: hintLevel, caregiverAssisted: assisted })
+      responseMs: Date.now() - shownAt.current, hintsUsed: hintLevel, caregiverAssisted: false }) // เอาปุ่ม "ผู้ดูแลช่วย" ออกแล้ว — ส่งค่าเดิมเป็น false เพื่อให้รูปแบบข้อมูลวิจัยคงเดิม
     setPicked(id)
     playSfx(c.isCorrect ? 'correct' : 'wrong')
   }
 
   // ข้อความในกล่องบทสนทนาของขั้นตอนนี้
   let line: Line
+  let lineIcon: string | null = null // ไอคอนวาดเองหน้าข้อความ (เช่น หลอดไฟตอนใบ้)
   let canContinue = true
   if (step.kind === 'line') line = step.line
   else if (step.kind === 'mission') {
     const choice = step.mission.choices.find(c => c.id === picked)
     if (choice) line = { speaker: 'pui', text: choice.feedback, emotion: choice.isCorrect ? 'happy' : 'gentle' }
-    else if (hintLevel > 0) line = { speaker: 'pui', text: `💡 ${step.mission.hints[hintLevel - 1]}` }
+    else if (hintLevel > 0) { line = { speaker: 'pui', text: step.mission.hints[hintLevel - 1] }; lineIcon = '💡' }
     else line = step.mission.question
     canContinue = !!choice?.isCorrect
   } else if (step.kind === 'explore') {
     line = exploreText
       ? { speaker: 'pui', text: exploreText, emotion: 'happy' }
       : { speaker: 'pui', text: 'มาสำรวจกันเถอะ! แตะสิ่งของเพื่อดูรายละเอียด หรือกด “ต่อไป” ได้เลยนะ', emotion: 'curious' }
-  } else if (step.kind === 'badge') line = { speaker: 'narrator', text: `ได้รับ${step.area.badge.name}! ${step.area.badge.icon}` }
+  } else if (step.kind === 'badge') line = { speaker: 'narrator', text: `ได้รับ${step.area.badge.name}!` }
   else if (step.kind === 'memories') line = { speaker: 'narrator', text: 'ความทรงจำจากการเดินทางวันนี้' }
   else line = { speaker: 'narrator', text: story.ending.finalMessage }
+
+  // ข้อความที่ขึ้นต้นด้วย 💡 (เช่น คำอธิบายหลังตอบ) → แสดงเป็นไอคอนหลอดไฟวาดเองแทนอีโมจิ
+  const lead = /^💡\s*/u.exec(line.text)
+  if (lead) { lineIcon = '💡'; line = { ...line, text: line.text.slice(lead[0].length) } }
 
   const hasPanel = step.kind !== 'line'
   // ภาพครึ่งตัวของผู้พูด — ไม่แสดงตอนมีแผง (ตัวเลือก/สำรวจ) เพื่อไม่บัง
@@ -213,17 +213,13 @@ function StepView({ step, nickname, hero, badges, prevSceneId, prevSpeaker, canB
           {/* ตราผู้พิทักษ์ที่ได้แล้ว (แผนที่ความคืบหน้า) */}
           <span className="badge-bar" aria-label={`ตราผู้พิทักษ์ ${badges.length} จาก 4`}>
             {story.areas.map(a => (
-              <span key={a.id} className={`badge-slot${badges.includes(a.id) ? ' got' : ''}`} title={a.badge.name}>{a.badge.icon}</span>
+              <span key={a.id} className={`badge-slot${badges.includes(a.id) ? ' got' : ''}`} title={a.badge.name}><StoryIcon icon={a.badge.icon} size={44} /></span>
             ))}
           </span>
         </div>
         <div className="hud-btns">
           <button className="icon-btn" aria-label="ตั้งค่าเสียง" onClick={() => setSoundOpen(true)}><MusicIcon size={60} /></button>
           {step.kind === 'mission' && <button className="icon-btn" aria-label="คำใบ้" onClick={showHint}><BulbIcon size={60} /></button>}
-          {step.kind === 'mission' && (
-            <button className={`icon-btn assist-btn${assisted ? ' on' : ''}`} onClick={markAssisted} aria-pressed={assisted}
-              aria-label="ผู้ดูแลช่วย (กดเมื่อผู้ดูแลช่วยอธิบายหรือช่วยเลือก)" title="ผู้ดูแลช่วย"><HelpHandsIcon size={62} /></button>
-          )}
           <button className="icon-btn" aria-label="หยุดพัก" onClick={onPause}><PauseIcon size={60} /></button>
         </div>
       </div>
@@ -254,9 +250,9 @@ function StepView({ step, nickname, hero, badges, prevSceneId, prevSpeaker, canB
           {step.items.map((it, i) => (
             <button key={it.label} className={`explore-item${explored.includes(i) ? ' seen' : ''}`}
               onClick={() => { setExploreText(it.text); setExplored(e => e.includes(i) ? e : [...e, i]) }}>
-              <span className="explore-icon" aria-hidden>{it.icon}</span>
+              <span className="explore-icon" aria-hidden><StoryIcon icon={it.icon} size={130} /></span>
               <span className="explore-label">{personalize(it.label, nickname, hero)}</span>
-              {explored.includes(i) && <span className="explore-check" aria-label="ดูแล้ว">✓</span>}
+              {explored.includes(i) && <span className="explore-check" aria-label="ดูแล้ว"><CheckIcon size={38} /></span>}
             </button>
           ))}
         </div>
@@ -264,7 +260,7 @@ function StepView({ step, nickname, hero, badges, prevSceneId, prevSpeaker, canB
 
       {step.kind === 'badge' && (
         <div className="badge-reward" role="status">
-          <span className="badge-big" aria-hidden>{step.area.badge.icon}</span>
+          <span className="badge-big" aria-hidden><StoryIcon icon={step.area.badge.icon} size={200} /></span>
           <b>{step.area.badge.name}</b>
           <span>{step.area.name}</span>
         </div>
@@ -282,7 +278,10 @@ function StepView({ step, nickname, hero, badges, prevSceneId, prevSpeaker, canB
                     : <Placeholder key={src} className="memory-ph" label="รอภาพ" />
                 })}
               </div>
-              <b className="memory-title">{personalize(m.title, nickname, hero)}</b>
+              <b className="memory-title">
+                {(() => { const a = story.areas.find(x => x.id === m.areaId); return a ? <StoryIcon icon={a.badge.icon} size={34} className="memory-icon" /> : null })()}
+                {personalize(stripLeadingEmoji(m.title), nickname, hero)}
+              </b>
               <span className="memory-summary">{personalize(m.summary, nickname, hero)}</span>
             </div>
           ))}
@@ -303,11 +302,11 @@ function StepView({ step, nickname, hero, badges, prevSceneId, prevSpeaker, canB
         {speakerName && <b className={`name name-${line.speaker}`}>{speakerName}</b>}
         <div className="dlg-tools">
           {prefs.speed !== 'instant' && (
-            <button className="dlg-tool" onClick={() => setReplay(r => r + 1)} aria-label="อ่านข้อความนี้อีกครั้ง">🔁 อ่านซ้ำ</button>
+            <button className="dlg-tool" onClick={() => setReplay(r => r + 1)} aria-label="อ่านข้อความนี้อีกครั้ง"><ReplayIcon size={34} /> อ่านซ้ำ</button>
           )}
           <button className={`dlg-tool${prefs.auto ? ' on' : ''}`} aria-pressed={prefs.auto}
             onClick={() => setTextPrefs({ auto: !prefs.auto })} aria-label="เล่นบทพูดต่ออัตโนมัติ">
-            {prefs.auto ? '▶▶ อัตโนมัติ' : '▶▶ อัตโนมัติ: ปิด'}
+            <AutoPlayIcon size={34} /> {prefs.auto ? 'อัตโนมัติ' : 'อัตโนมัติ: ปิด'}
           </button>
         </div>
         {line.speaker !== 'narrator' && (
@@ -317,6 +316,7 @@ function StepView({ step, nickname, hero, badges, prevSceneId, prevSpeaker, canB
         )}
         <div className="dialogue-text" onClick={typing ? finishTyping : undefined}>
           <p>
+            {lineIcon && <StoryIcon icon={lineIcon} size={46} className="line-icon" />}
             <span className="sr-only">{shownText}</span>
             <span aria-hidden>{chars.slice(0, count).join('')}</span>
             <span className="type-rest" aria-hidden>{chars.slice(count).join('')}</span>
